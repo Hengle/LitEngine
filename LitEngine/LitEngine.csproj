@@ -68,6 +68,8 @@
     <Compile Include="Script\GoogleProto\WireFormat.cs" />
     <Compile Include="Script\Managers\PublicUpdateManager.cs" />
     <Compile Include="Script\RootScript.cs" />
+    <Compile Include="Script\SteamReaderAndWriter\AESReader.cs" />
+    <Compile Include="Script\SteamReaderAndWriter\AesStreamBase.cs" />
     <Compile Include="Script\SteamReaderAndWriter\LReadStream.cs" />
     <Compile Include="Script\SteamReaderAndWriter\LStreamBase.cs" />
     <Compile Include="Script\SteamReaderAndWriter\LWriteStream.cs" />
