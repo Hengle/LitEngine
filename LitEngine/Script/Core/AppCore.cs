@@ -102,7 +102,11 @@ namespace LitEngine
 
         public static GameCore AppChange(string _nowapp,string _nextapp,string _startscene)
         {
-            DestroyGameCore(_nowapp);
+            if(!string.IsNullOrEmpty(_nowapp))
+                DestroyGameCore(_nowapp);
+            if (string.IsNullOrEmpty(_nextapp))
+                throw new System.NullReferenceException("_nextapp 输入不正确.");
+
             GameCore ret =  CreatGameCore(_nextapp);
             ret.LManager.LoadAsset(_startscene);
             string tscenename = _startscene.Replace(".unity","");
@@ -151,7 +155,7 @@ namespace LitEngine
         private void DestroyGame(string _key)
         {
             if (!mGameMap.ContainsKey(_key))
-                throw new System.NullReferenceException("试图摧毁一个不存在的 GameCore. _appname = " + _key);
+                return;
 
             DLog.LogWarning( "准备释放一个GameCore,同时摧毁App相关所有UnityInterface. AppName = " + _key);
             mGameMap[_key].Dispose();
