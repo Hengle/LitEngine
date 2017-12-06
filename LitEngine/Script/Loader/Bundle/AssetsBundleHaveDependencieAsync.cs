@@ -16,9 +16,6 @@ namespace LitEngine
 
             public override void Load(LoaderManager _loader)
             {
-                mMainBundle = new AssetsBundleAsyncFromFile(mAssetName);
-                mMainBundle.Load(_loader);
-
                 string[] tdeps = _loader.GetDirectDependencies(mAssetName);
                 mNeedLoadCount = tdeps != null ? tdeps.Length : 0;
                 if (tdeps != null)
@@ -30,6 +27,8 @@ namespace LitEngine
                         mDepList.Add(tchile);
                     }
                 }
+                mMainBundle = new AssetsBundleAsyncFromFile(mAssetName);
+                mMainBundle.Load(_loader);
                 mStartLoad = true;
             }
 
