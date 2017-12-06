@@ -1,6 +1,7 @@
 ﻿using System;
 namespace LitEngine
 {
+    #region base
     public class CoreBase : IDisposable
     {
         protected bool mDisposed = false;
@@ -15,7 +16,7 @@ namespace LitEngine
         {
             if (mDisposed)
                 return;
-            if(_disposing)
+            if (_disposing)
                 DisposeNoGcCode();
             mDisposed = true;
         }
@@ -30,6 +31,8 @@ namespace LitEngine
             Dispose(false);
         }
     }
+    #endregion
+
     public class AppCore : CoreBase
     {
         #region 静态函数及变量
@@ -40,6 +43,7 @@ namespace LitEngine
         private SafeMap<string, GameCore> mGameMap = new SafeMap<string, GameCore>();
         #endregion
         #region 方法
+        #region 属性
         static private string sPersistentDataPath = null;
         static public string persistentDataPath
         {
@@ -72,7 +76,9 @@ namespace LitEngine
                 return sInstance;
             }
         }
+        #endregion
 
+        #region AppCreat
         private static GameCore GetGameCore(AppCore _app, string _appname)
         {
             System.Type ttype = typeof(GameCore);
@@ -100,33 +106,85 @@ namespace LitEngine
 
         }
 
-        public static GameCore AppChange(string _nowapp,string _nextapp,string _startscene)
-        {
-            if(!string.IsNullOrEmpty(_nowapp))
-                DestroyGameCore(_nowapp);
-            if (string.IsNullOrEmpty(_nextapp))
-                throw new System.NullReferenceException("_nextapp 输入不正确.");
-
-            GameCore ret =  CreatGameCore(_nextapp);
-            ret.LManager.LoadAsset(_startscene);
-            string tscenename = _startscene.Replace(".unity","");
-            UnityEngine.SceneManagement.SceneManager.LoadScene(tscenename);
-            return ret;
-        }
-
         public static GameCore CreatGameCore(string _appname)
         {
             if (App.ContainsKey(_appname)) return App[_appname];
             return App.AddGameCore(_appname);
         }
+        #endregion
 
+        #region 清除
         public static void DestroyGameCore(string _appname)
         {
             App.DestroyGame(_appname);
         }
-        #endregion
+
+        public static void DisposeGameCore(string _appname,object _disposeobject,string _disposefun)
+        {
+            if (!App.ContainsKey(_appname)) return;
+            App[_appname].SManager.CodeTool.CallMethodByName(_disposefun, _disposeobject);
+            App.DestroyGame(_appname);
+        }
         #endregion
 
+        #region AppChange
+        public static GameCore AppChangeFromMemory(string _nowapp, string _nextapp, byte[] _dllbytes, byte[] _pdbbytes, string _Class, string _startFun)
+        {
+            if (!string.IsNullOrEmpty(_nowapp))
+                DestroyGameCore(_nowapp);
+            if (string.IsNullOrEmpty(_nextapp))
+                throw new System.NullReferenceException("_nextapp 输入不正确.");
+
+            UnityEngine.GameObject tobj = new UnityEngine.GameObject("Temp-" + _nextapp);
+
+            RootScript trs = tobj.AddComponent<RootScript>();
+            trs.APPNAME = _nextapp;
+            trs.ScriptFileName = "";
+            trs.StartClass = _Class;
+            trs.StartFun = _startFun;
+            trs.InitScript();
+            trs.LoadScriptFormMemory(_dllbytes, _pdbbytes);
+
+            return CreatGameCore(trs.APPNAME);
+        }
+
+        public static GameCore AppChangeFromFile(string _nowapp, string _nextapp, string _scriptFileName, string _Class, string _startFun)
+        {
+            if (!string.IsNullOrEmpty(_nowapp))
+                DestroyGameCore(_nowapp);
+            if (string.IsNullOrEmpty(_nextapp))
+                throw new System.NullReferenceException("_nextapp 输入不正确.");
+
+            UnityEngine.GameObject tobj = new UnityEngine.GameObject("Temp-" + _nextapp);
+
+            RootScript trs = tobj.AddComponent<RootScript>();
+            trs.APPNAME = _nextapp;
+            trs.ScriptFileName = _scriptFileName;
+            trs.StartClass = _Class;
+            trs.StartFun = _startFun;
+
+            trs.InitScript();
+
+            return CreatGameCore(trs.APPNAME);
+        }
+
+        public static GameCore AppChange(string _nowapp, string _nextapp, string _startscene)
+        {
+            if (!string.IsNullOrEmpty(_nowapp))
+                DestroyGameCore(_nowapp);
+            if (string.IsNullOrEmpty(_nextapp))
+                throw new System.NullReferenceException("_nextapp 输入不正确.");
+
+            GameCore ret = CreatGameCore(_nextapp);
+            ret.LManager.LoadAsset(_startscene);
+            string tscenename = _startscene.Replace(".unity", "");
+            UnityEngine.SceneManagement.SceneManager.LoadScene(tscenename);
+            return ret;
+        }
+
+        #endregion
+        #endregion
+        #endregion
         #region 类方法
 
         #region private

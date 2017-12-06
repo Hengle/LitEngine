@@ -3,26 +3,41 @@ namespace LitEngine
 {
     public class RootScript : MonoBehaviour
     {
-        public string APPNAME = "AppName,应于AppConfig中的配置保持一致.";
-        public string ScriptFileName = "脚本文件名不带后缀";
-        public string StartClass = "启动类名";
-        public string StartFun = "启动方法名";
+        public string APPNAME = "";
+        public string ScriptFileName = "";
+        public string StartClass = "";
+        public string StartFun = "";
         private object mMainObject = null;
         private GameCore mCore = null;
-        
+        private bool mInited = false;
         protected void Awake()
         {
+            InitScript();
+        }
+
+        public void InitScript()
+        {
+            if (mInited) return;
+            if (string.IsNullOrEmpty(APPNAME)) return;
+            mInited = true;
             gameObject.name = "Root-" + APPNAME;
             mCore = AppCore.CreatGameCore(APPNAME);
             mCore.DontDestroyOnLoad(gameObject);
-
-            LoadScriptFormFile(ScriptFileName);
+            if (!string.IsNullOrEmpty(ScriptFileName))
+                LoadScriptFormFile(ScriptFileName);
         }
 
-        public void StartMain(string _mainClass)
+        public void StartMain(string _mainClass,string _fun)
         {
-            mMainObject = mCore.SManager.CodeTool.GetCSLEObjectParmas(_mainClass);
-            mCore.SManager.CodeTool.CallMethodByName(StartFun, mMainObject);
+            if (mMainObject != null)
+            {
+                DLog.LogError("MainObject 重复创建.");
+                return;
+            }
+            if (!string.IsNullOrEmpty(_mainClass))
+                mMainObject = mCore.SManager.CodeTool.GetCSLEObjectParmas(_mainClass);
+            if (!string.IsNullOrEmpty(_fun))
+                mCore.SManager.CodeTool.CallMethodByName(_fun, mMainObject);
         }
 
         public void LoadScriptFormFile(string _filename)
@@ -37,7 +52,7 @@ namespace LitEngine
             if (System.IO.File.Exists(tdllPath + ".dll"))
             {
                 mCore.SManager.LoadProject(tdllPath);
-                StartMain(StartClass);
+                StartMain(StartClass, StartFun);
             }
         }
 
@@ -51,7 +66,7 @@ namespace LitEngine
             if (_dllbytes != null && _pdbbytes != null)
             {
                 mCore.SManager.LoadProjectByBytes(_dllbytes, _pdbbytes);
-                StartMain(StartClass);
+                StartMain(StartClass, StartFun);
             }
         }
     }
