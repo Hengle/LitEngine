@@ -68,6 +68,9 @@ public class CreatCLRBindingFile
 
         _types.Add(typeof(LitEngine.IO.Reader));
         _types.Add(typeof(LitEngine.IO.Writer));
+        _types.Add(typeof(LitEngine.IO.AesStreamBase));
+        _types.Add(typeof(LitEngine.IO.AESReader));
+        _types.Add(typeof(LitEngine.IO.AESWriter));
 
         _types.Add(typeof(LitEngine.NetTool.TCPNet));
         _types.Add(typeof(LitEngine.NetTool.SendData));
