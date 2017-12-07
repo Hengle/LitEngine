@@ -58,11 +58,10 @@ namespace LitEngine
                 mCSLEObject = null;
                 mIndex = 0;
                 int tindex = _offset;
-                short tlen = BufferBase.SReadShort(_buffer,tindex);
+                mLen = BufferBase.SReadShort(_buffer,tindex);
                 tindex += sizeof(short);
                 mCmd = BufferBase.SReadShort(_buffer,tindex);
                 tindex += sizeof(short);
-                mLen = tlen - SocketDataBase.mFirstLen;
                 if (mData == null || mLen > mData.Length)
                     mData = new byte[mLen];
                 else

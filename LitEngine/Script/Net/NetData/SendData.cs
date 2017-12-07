@@ -59,7 +59,7 @@ namespace LitEngine
             public byte[] GetData()
             {
                 if (mIsEnd) return mData;
-                mLen = (short)(mIndex - 2);
+                mLen = (short)(mIndex - SocketDataBase.mPackageTopLen);
                 short tbackupindex = mIndex;
                 mIndex = 0;
                 AddShort(mLen);

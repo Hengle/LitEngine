@@ -62,23 +62,23 @@ namespace LitEngine
             {
                 bool ret = false;
                 List<IPAddress> tipds = GetServerIpAddress(mHostName);
-                if (tipds.Count == 0) DLog.LogError( "IPAddress列表为空!");
+                if (tipds.Count == 0) DLog.LogError( "IPAddress List.Count = 0!");
 
                 foreach (IPAddress tip in tipds)
                 {
                     try
                     {
-                       DLog.Log( "开始连接:" + " HostName:" + mHostName + "IpAddress: " + tip.ToString() + " AddressFamily:" + tip.AddressFamily.ToString());
+                        DLog.Log( string.Format("[开始连接]" + " HostName:{0} IpAddress:{1} AddressFamily:{2}", mHostName, tip.ToString(), tip.AddressFamily.ToString()));
                         mSocket = new Socket(tip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                         ChoseSocketTimeOutAndBuffer();
                         mSocket.Connect(tip, mPort);
-                       DLog.Log( "连接成功!");
+                        DLog.Log( "连接成功!");
                         ret = true;
                         break;
                     }
                     catch (Exception e)
                     {
-                        DLog.LogError( "网络连接异常,连接信息如下:" + " HostName:" + mHostName + " IP:" + tip.ToString() + " AddressFamily:" + tip.AddressFamily.ToString() + " 错误信息:" + e.ToString());
+                        DLog.Log(string.Format("[网络连接异常]" + " HostName:{0} IpAddress:{1} AddressFamily:{2} ErrorMessage:{3}", mHostName, tip.ToString(), tip.AddressFamily.ToString(), e.ToString()));
                     }
                 }
 
@@ -103,7 +103,7 @@ namespace LitEngine
                         CreatRec();
                         #endregion
 
-                       DLog.Log( "收发线程启动!");
+                        DLog.Log( "收发线程启动!");
                         mState = TcpState.Connected;
                     }
                     catch (Exception e)

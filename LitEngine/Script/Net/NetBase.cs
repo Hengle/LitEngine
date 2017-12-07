@@ -151,10 +151,10 @@ namespace LitEngine
                 List<IPAddress> ret = new List<IPAddress>();
                 try {
                     IPAddress[] tips = Dns.GetHostAddresses(mHostName);
-                   DLog.Log( "HostName: " + mHostName + " Length:" + tips.Length);
+                    DLog.Log( "HostName: " + mHostName + " Length:" + tips.Length);
                     for (int i = 0; i < tips.Length; i++)
                     {
-                       DLog.Log( "IpAddress: " + tips[i].ToString() + " AddressFamily:" + tips[i].AddressFamily.ToString());
+                      // DLog.Log( "IpAddress: " + tips[i].ToString() + " AddressFamily:" + tips[i].AddressFamily.ToString());
 
                         if (tips[i].AddressFamily == AddressFamily.InterNetwork)
                             ret.Insert(0, tips[i]);
@@ -164,7 +164,7 @@ namespace LitEngine
                 }
                 catch (Exception e)
                 {
-                    DLog.LogError( "获取IPAddress失败:" + " HostName:" + mHostName + " IP:" + ret.ToString() + " 错误信息:" + e.ToString());
+                    DLog.LogError(string.Format("[获取IPAddress失败]" + " HostName:{0} IP:{1} ErrorMessage:{2}", mHostName, ret.Count, e.ToString()));
                 }
                 return ret;
             }
