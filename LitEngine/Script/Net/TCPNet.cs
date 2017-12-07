@@ -104,7 +104,6 @@ namespace LitEngine
                         #endregion
 
                         DLog.Log( "收发线程启动!");
-                        mState = TcpState.Connected;
                     }
                     catch (Exception e)
                     {
@@ -116,9 +115,16 @@ namespace LitEngine
                 }
                 
                 if (!tok)
-                    AddMainThreadMsgReCall(GetMsgReCallData(MSG_RECALL.ConectError, mNetTag + tmsg));
+                {
+                    mState = TcpState.Closed;
+                    AddMainThreadMsgReCall(GetMsgReCallData(MSG_RECALL.ConectError, mNetTag + "建立连接失败. " + tmsg));
+                }
                 else
-                    AddMainThreadMsgReCall(GetMsgReCallData(MSG_RECALL.Connected, mNetTag + "建立连接完成"));
+                {
+                    mState = TcpState.Connected;
+                    AddMainThreadMsgReCall(GetMsgReCallData(MSG_RECALL.Connected, mNetTag + "建立连接完成."));
+                }
+                    
             }
 
             protected void CreatSend()
