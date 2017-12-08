@@ -5,6 +5,7 @@ using ILRuntime.CLR.Method;
 using UnityEngine;
 namespace LitEngine
 {
+    using UpdateSpace;
     public class CodeTool_LS : CodeToolBase
     {
         #region 初始化
@@ -224,6 +225,16 @@ namespace LitEngine
 
         #endregion
         #region 委托
+        override public UpdateBase GetUpdateObjectAction(string _Function, string _classname, object _target)
+        {
+            ILType ttype = (ILType)GetLType(_classname);
+            IMethod tmethod = ttype.GetMethod(_Function);
+
+            if (tmethod != null)
+                return new UpdateILObject(string.Format("{0}:{1}->{2}", AppName, _classname, _Function), mApp, tmethod, _target);
+            return null;
+
+        }
         private IDelegateAdapter GetDelgateAdapter(string _Function,int _pramcount,IType _classtype, object _target ,out bool _isNeedReg)
         {
             _isNeedReg = false;

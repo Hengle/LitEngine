@@ -149,14 +149,10 @@ namespace LitEngine
         #endregion
 
         #region 委托
-        virtual public UpdateObject GetUpdateObjectAction(string _Function, string _classname, object _target)
+        virtual public UpdateBase GetUpdateObjectAction(string _Function, string _classname, object _target)
         {
-            IType ttype = GetLType(_classname);
-            object tact = GetCSLEDelegate<Action>(_Function, ttype, _target);
-            if(tact != null)
-                return new UpdateObject(string.Format("{0}:{1}->{2}",AppName, _classname, _Function), (Action)tact);
-            return null;
 
+            return null;
         }
 
         virtual public K GetCSLEDelegate<K>(string _Function, IType _classtype, object _target)

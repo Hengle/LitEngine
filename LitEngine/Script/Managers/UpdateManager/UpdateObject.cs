@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using ILRuntime.CLR.Method;
+
 namespace LitEngine
 {
     namespace UpdateSpace
@@ -13,7 +15,6 @@ namespace LitEngine
             protected Action mZeroDelegate = null;
             protected float mMaxTime = 0.1f;
             protected float mTimer = 0;
-            protected float mDeltatime;
             protected bool mIsUseTimer = true;
             public float UpdateTimer
             {
@@ -44,6 +45,7 @@ namespace LitEngine
                 mZeroDelegate = _delegate;
                 IsRegToOwner = false;
             }
+
             public UpdateBase()
             {
 
@@ -95,7 +97,8 @@ namespace LitEngine
 
             virtual public void RunDelgete()
             {
-
+                if (!IsTimeOut()) return;
+                CallMethod();
             }
 
             virtual public void CallMethod()
@@ -108,26 +111,40 @@ namespace LitEngine
             {
                 if (!mIsUseTimer) return true;
                 if (Time.realtimeSinceStartup < mTimer) return false;
-                mDeltatime = Time.realtimeSinceStartup - mTimer + mMaxTime;
                 mTimer = Time.realtimeSinceStartup + mMaxTime;
                 return true;
             }
         }
+
         public class UpdateObject : UpdateBase
         {
             public UpdateObject(string _key, Action _delegate) : base(_key, _delegate)
             {
-
-            }
-            override public void RunDelgete()
-            {
-                if (!IsTimeOut()) return;
-                CallMethod();
             }
 
         }
 
-        public class UpdateNeedDisObject : UpdateObject
+        public class UpdateILObject : UpdateBase
+        {
+            private IMethod mMethod;
+            private ILRuntime.Runtime.Enviorment.AppDomain mApp;
+            private object mTarget;
+            public UpdateILObject(string _key, ILRuntime.Runtime.Enviorment.AppDomain _app, IMethod _method, object _target) : base(_key, null)
+            {
+                mApp = _app;
+                mMethod = _method;
+                mTarget = _target;
+                if (mMethod.ParameterCount > 0) throw new System.IndexOutOfRangeException(_method.Name + "-Method.ParamterCount > 0");
+            }
+
+            override public void CallMethod()
+            {
+                if (mApp == null || mMethod == null) return;
+                mApp.Invoke(mMethod, mTarget, null);
+            }
+        }
+
+        public class UpdateNeedDisObject : UpdateBase
         {
             private Action mDisposable = null;
             public UpdateNeedDisObject(string _key, Action _delegate, Action _disposable) : base(_key, _delegate)

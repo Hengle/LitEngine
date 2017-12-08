@@ -26,10 +26,10 @@ namespace LitEngine
             }
 
             #region update
-            protected UpdateObject mUpdateDelegate = null;
-            protected UpdateObject mFixedUpdateDelegate = null;
-            protected UpdateObject mLateUpdateDelegate = null;
-            protected UpdateObject mOnGUIDelegate = null;
+            protected UpdateBase mUpdateDelegate = null;
+            protected UpdateBase mFixedUpdateDelegate = null;
+            protected UpdateBase mLateUpdateDelegate = null;
+            protected UpdateBase mOnGUIDelegate = null;
 
             #endregion
             #endregion
@@ -121,7 +121,11 @@ namespace LitEngine
 
                 mOnGUIDelegate = mCodeTool.GetUpdateObjectAction("OnGUI", mScriptClass, ScriptObject);
                 if (mOnGUIDelegate != null)
+                {
+                    mOnGUIDelegate.MaxTime = 0;
                     mOnGUIDelegate.Owner = tmanager.OnGUIList;
+                }
+                    
             }
             virtual public void InitScript(string _class,string _AppName)
             {
@@ -238,6 +242,17 @@ namespace LitEngine
             {
                 CallScriptFunctionByName("OnDestroy");
                 ClearScriptObject();
+            }
+
+            virtual protected void OnDisable()
+            {
+                CallScriptFunctionByName("OnDisable");
+                UnRegAll();
+            }
+            virtual protected void OnEnable()
+            {
+                CallScriptFunctionByName("OnEnable");
+                RegAll();
             }
             #endregion
             #region 注册与卸载

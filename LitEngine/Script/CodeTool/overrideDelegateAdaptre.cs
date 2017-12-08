@@ -1,4 +1,5 @@
-﻿#region 修改后的
+﻿/*
+#region 修改后的
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -885,3 +886,4 @@ namespace ILRuntime.Runtime.Intepreter
 }
 
 #endregion
+*/

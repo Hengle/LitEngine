@@ -22,16 +22,6 @@ namespace LitEngine
             }
             #endregion
             #region Unity 
-            protected void OnDisable()
-            {
-                CallScriptFunctionByName("OnDisable");
-                UnRegAll();
-            }
-            protected void OnEnable()
-            {
-                CallScriptFunctionByName("OnEnable");
-                RegAll();
-            }
 
             override protected void OnDestroy()
             {
