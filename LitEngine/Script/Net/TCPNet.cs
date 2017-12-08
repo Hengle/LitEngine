@@ -78,7 +78,7 @@ namespace LitEngine
                     }
                     catch (Exception e)
                     {
-                        DLog.Log(string.Format("[网络连接异常]" + " HostName:{0} IpAddress:{1} AddressFamily:{2} ErrorMessage:{3}", mHostName, tip.ToString(), tip.AddressFamily.ToString(), e.ToString()));
+                        DLog.LogError(string.Format("[网络连接异常]" + " HostName:{0} IpAddress:{1} AddressFamily:{2} ErrorMessage:{3}", mHostName, tip.ToString(), tip.AddressFamily.ToString(), e.ToString()));
                     }
                 }
 
@@ -185,19 +185,8 @@ namespace LitEngine
             virtual protected void SendThread(SendData _data)
             {
                 if (_data == null) return;
-                byte[] tbuffer = null;
-                int tlen = 0;
-                try {
-                    tbuffer = _data.GetData();
-                    tlen = _data.Len + SocketDataBase.mFirstLen;//len必须在取得data后使用才是正确的
-                }
-                catch (Exception e)
-                {
-                    DLog.LogError( mNetTag + ":SendThread->" + e.ToString());
-                }
-                if (tbuffer == null) return ;
-                int sendlen = mSocket.Send(tbuffer, tlen, SocketFlags.None);
-                DebugMsg(_data.Cmd, tbuffer, 0, tlen, "Send-SendThread");
+                int sendlen = mSocket.Send(_data.Data, _data.SendLen, SocketFlags.None);
+                DebugMsg(_data.Cmd, _data.Data, 0, _data.SendLen, "Send-SendThread");
             }
             #endregion
             #endregion
@@ -237,6 +226,7 @@ namespace LitEngine
                     while (mBufferData.IsFullData())
                     {
                         ReceiveData tssdata = mBufferData.GetReceiveData();
+                        mResultDataList.Enqueue(tssdata);
                         mBufferData.Pop();
                         DebugMsg(tssdata.Cmd, tssdata.Data, 0, tssdata.Len, "接收-ReceiveData");
                     }

@@ -20,7 +20,7 @@ namespace LitEngine
             {
                 get
                 {
-                    return mData;
+                    return GetData();
                 }
             }
             public short Len
@@ -30,6 +30,15 @@ namespace LitEngine
                     return mLen;
                 }
             }
+
+            public int SendLen
+            {
+                get
+                {
+                    return mIndex;
+                }
+            }
+
             public short Cmd
             {
                 get
@@ -56,16 +65,19 @@ namespace LitEngine
                 mIsEnd = false;
                 Sended = false;
             }
-            public byte[] GetData()
+            private byte[] GetData()
             {
-                if (mIsEnd) return mData;
-                mLen = (short)(mIndex - SocketDataBase.mPackageTopLen);
-                short tbackupindex = mIndex;
-                mIndex = 0;
-                AddShort(mLen);
-                mIndex = tbackupindex;
-                mIsEnd = true;
-                return mData;
+                lock(this)
+                {
+                    if (mIsEnd) return mData;
+                    mLen = (short)(mIndex - SocketDataBase.mPackageTopLen);
+                    short tbackupindex = mIndex;
+                    mIndex = 0;
+                    AddShort(mLen);
+                    mIndex = tbackupindex;
+                    mIsEnd = true;
+                    return mData;
+                } 
             }
 
             #region　添加数据

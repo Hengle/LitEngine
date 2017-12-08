@@ -165,10 +165,8 @@ namespace LitEngine
             virtual protected void SendThread(SendData _data)
             {
                 if (_data == null) return;
-                byte[] tbuffer = _data.GetData();
-                int tlen = _data.Len + SocketDataBase.mFirstLen;
-                int tsend = mSocket.SendTo(tbuffer, tlen, SocketFlags.None, mTargetPoint);
-                DebugMsg(_data.Cmd, tbuffer, 0, tlen, "UdpSend");
+                int tsend = mSocket.SendTo(_data.Data, _data.SendLen, SocketFlags.None, mTargetPoint);
+                DebugMsg(_data.Cmd, _data.Data, 0, _data.SendLen, "UdpSend");
 
             }
             #endregion

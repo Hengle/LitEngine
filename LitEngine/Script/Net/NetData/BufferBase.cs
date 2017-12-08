@@ -67,8 +67,8 @@ namespace LitEngine
             public void SetReceiveData(ReceiveData _data)
             {
                 short tlen = SReadShort(mBuffer, mPos);
-                _data.SetBuffer(mBuffer, 0);
-                mPos = tlen + SocketDataBase.mFirstLen;
+                _data.SetBuffer(mBuffer, mPos);
+                mPos = tlen + SocketDataBase.mPackageTopLen;
             }
             #endregion
 

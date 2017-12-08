@@ -401,7 +401,7 @@ namespace LitEngine
                     }
                     bufferstr.Append("}");
                     string tmsg = string.Format("{0}-cmd:{1} title:{2}  长度:{3}  内容:{4}", mNetTag, _cmd, _title, _len, bufferstr);
-                   DLog.Log(tmsg);
+                    DLog.Log(tmsg);
                 }
             }
             #region 发送
