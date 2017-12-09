@@ -275,6 +275,8 @@ namespace LitEngine
             }
             virtual public void ClearMsgHandler()
             {
+                mSendDataList.Clear();
+                mResultDataList.Clear();
                 mMsgHandlerList.Clear();
             }
             
