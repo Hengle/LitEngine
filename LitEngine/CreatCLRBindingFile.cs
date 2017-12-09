@@ -87,6 +87,7 @@ public class CreatCLRBindingFile
         _types.Add(typeof(LitEngine.SafeQueue<ILRuntime.Runtime.Intepreter.ILTypeInstance>));
         _types.Add(typeof(LitEngine.ScriptInterface.BehaviourInterfaceBase));
         _types.Add(typeof(LitEngine.UnZip.UnZipTask));
+        _types.Add(typeof(LitEngine.UpdateSpace.UpdateILObject));
         _types.Add(typeof(LitEngine.UpdateSpace.UpdateObject));
         _types.Add(typeof(LitEngine.UpdateSpace.UpdateObjectVector));
         _types.Add(typeof(LitEngine.UpdateSpace.UpdateNeedDisObject));

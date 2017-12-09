@@ -20,6 +20,8 @@ namespace LitEngine
             protected IType mScriptType;
             protected object mObject = null;
 
+            protected GameCore mCore = null;
+
             public object ScriptObject
             {
                 get { return mObject; }
@@ -76,7 +78,13 @@ namespace LitEngine
                 }
                 mIsDestory = true;
 
-                if(mOnGUIDelegate != null)
+                if(mCore != null)
+                {
+                    mCore.RemveScriptInterface(this);
+                    mCore = null;
+                }
+
+                if (mOnGUIDelegate != null)
                 {
                     mOnGUIDelegate.Dispose();
                     mOnGUIDelegate = null;
@@ -100,8 +108,6 @@ namespace LitEngine
                 mObject = null;
                 mScriptType = null;
                 mCodeTool = null;
-
-                mInitScript = false;
             }
 
             virtual protected void InitParamList()
@@ -138,14 +144,15 @@ namespace LitEngine
                 try {
                     mAppName = _AppName;
                     DLog.Log(_class + "->Init. App's name :" + mAppName);
-                    mCodeTool = AppCore.App[mAppName].SManager.CodeTool;
+                    mCore = AppCore.App[mAppName];
+                    mCodeTool = mCore.SManager.CodeTool;
                     mScriptClass = _class;
                     mScriptType = mCodeTool.GetLType(mScriptClass);
                     mObject = mCodeTool.GetCSLEObjectParmasByType(mScriptType, this);
                     InitParamList();
+                    mCore.AddScriptInterface(this);
                     CallScriptFunctionByName("Awake");
                     mInitScript = true;
-                    mIsDestory = false;
                 }
                 catch (Exception _erro)
                 {
@@ -191,9 +198,11 @@ namespace LitEngine
             virtual public object CallScriptFunctionByNameParams(string _FunctionName, params object[] _prams)
             {
                 try {
-                    if (mObject == null) return null;
+                    if (mObject == null || mScriptType == null || mCodeTool == null) return null;
                     int tpramcount = _prams != null ? _prams.Length : 0;
-                    return mCodeTool.CallMethodNoTry(mCodeTool.GetLMethod(mScriptType, _FunctionName, tpramcount), mObject, _prams);
+                    object tmethod = mCodeTool.GetLMethod(mScriptType, _FunctionName, tpramcount);
+                    if (tmethod == null) return null;
+                    return mCodeTool.CallMethodNoTry(tmethod, mObject, _prams);
                 }
                 catch (Exception _erro)
                 {

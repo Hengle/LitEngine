@@ -74,6 +74,7 @@ namespace LitEngine
             protected int mSendBufferSize = 1024;
 
             protected string mNetTag = "";
+            public bool StopUpdateRecMsg { get; set; }
             #endregion
 
             #region 数据
@@ -105,7 +106,7 @@ namespace LitEngine
 
             public NetBase()
             {
-                
+                StopUpdateRecMsg = false;
             }
 
             virtual protected void OnDestroy()
@@ -358,6 +359,7 @@ namespace LitEngine
 
             virtual public void UpdateRecMsg()
             {
+                if (StopUpdateRecMsg) return;
 
                 int i = mResultDataList.Count > OneFixedUpdateChoseCount ? OneFixedUpdateChoseCount: mResultDataList.Count;
 

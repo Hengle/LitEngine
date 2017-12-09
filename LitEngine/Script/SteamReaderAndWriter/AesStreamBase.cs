@@ -5,7 +5,7 @@ namespace LitEngine
 {
     namespace IO
     {
-        public abstract class AesStreamBase : System.IDisposable
+        public class AesStreamBase : System.IDisposable
         {
             public static string AESKey = "fjeicl458c81k53mc7ckd823ng5bcr32";
             public const int SafeByteLen = 100;

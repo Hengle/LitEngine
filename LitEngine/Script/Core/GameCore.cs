@@ -32,6 +32,7 @@ namespace LitEngine
         public string AppStreamingAssetsScriptDataPath { get; private set; }
 
         private List<UnityEngine.GameObject> mDontDestroyList = new List<UnityEngine.GameObject>();
+        private List<ScriptInterface.BehaviourInterfaceBase> mScriptInterfaces = new List<ScriptInterface.BehaviourInterfaceBase>();
         #endregion
 
         #region 管理器
@@ -103,23 +104,26 @@ namespace LitEngine
 
         #endregion
         #region 释放
-        
+
         override protected void DisposeNoGcCode()
         {
+            //公用
             PublicUpdateManager.ClearByKey(AppName);
             NetTool.HttpNet.ClearByKey(AppName);
 
-            ScriptInterface.BehaviourInterfaceBase[] tobjs = Component.FindObjectsOfType<ScriptInterface.BehaviourInterfaceBase>();
-            for (int i = tobjs.Length - 1; i >= 0; i--)
-            {
-                if (!tobjs[i].mAppName.Equals(AppName)) continue;
-                tobjs[i].ClearScriptObject();
-                Component.DestroyImmediate(tobjs[i]);
-            }
 
-            for(int i = mDontDestroyList.Count - 1;i >= 0;i--)
+            for (int i = mScriptInterfaces.Count - 1; i >= 0; i--)
             {
-                GameObject.DestroyImmediate(mDontDestroyList[i]);
+                ScriptInterface.BehaviourInterfaceBase tscript = mScriptInterfaces[i];
+                if (tscript == null) continue;
+                if (!tscript.mAppName.Equals(AppName)) continue;
+                tscript.ClearScriptObject();
+            }
+            mScriptInterfaces.Clear();
+
+            for (int i = mDontDestroyList.Count - 1;i >= 0;i--)
+            {
+                Destroy(mDontDestroyList[i]);
             }
             mDontDestroyList.Clear();
 
@@ -152,6 +156,18 @@ namespace LitEngine
             AppStreamingAssetsScriptDataPath = string.Format("{0}{1}", AppStreamingAssetsDataPath, ScriptDataPath).Replace("//", "/");
         }
 
+        public void AddScriptInterface(ScriptInterface.BehaviourInterfaceBase _scriptinterface)
+        {
+            if (mScriptInterfaces.Contains(_scriptinterface)) return;
+            mScriptInterfaces.Add(_scriptinterface);
+        }
+
+        public void RemveScriptInterface(ScriptInterface.BehaviourInterfaceBase _scriptinterface)
+        {
+            if (!mScriptInterfaces.Contains(_scriptinterface)) return;
+            mScriptInterfaces.Remove(_scriptinterface);
+        }
+
         public void DontDestroyOnLoad(UnityEngine.GameObject _obj)
         {
             UnityEngine.Object.DontDestroyOnLoad(_obj);
@@ -162,20 +178,20 @@ namespace LitEngine
         {
             if (mDontDestroyList.Contains(_obj))
                 mDontDestroyList.Remove(_obj);
-            UnityEngine.Object.DestroyObject(_obj, _t);
+            UnityEngine.GameObject.DestroyObject(_obj, _t);
         }
         public void DestroyImmediate(UnityEngine.GameObject _obj)
         {
             if (mDontDestroyList.Contains(_obj))
                 mDontDestroyList.Remove(_obj);
-            UnityEngine.Object.DestroyImmediate(_obj);
+            UnityEngine.GameObject.DestroyImmediate(_obj);
         }
 
         public void Destroy(UnityEngine.GameObject _obj)
         {
             if (mDontDestroyList.Contains(_obj))
                 mDontDestroyList.Remove(_obj);
-            UnityEngine.Object.Destroy(_obj);
+            UnityEngine.GameObject.Destroy(_obj);
         }
         #endregion
         #region Tool方法
