@@ -66,19 +66,7 @@ public class DLog
     }
     public static string GetString(string _str, params object[] _params)
     {
-        StringBuilder tmsgbuilder = new StringBuilder();
-        tmsgbuilder.Append(_str);
-        if (_params != null)
-        {
-            for (int i = 0; i < _params.Length; i++)
-            {
-                object tobj = _params[i];
-                if (tobj == null) continue;
-                tmsgbuilder.Append(tobj.ToString());
-            }
-        }
-
-        return tmsgbuilder.ToString();
+        return string.Format(_str, _params);
     }
 
     public static void LOGColor(DLogType _type, string _msg, LogColor _color)
@@ -138,5 +126,24 @@ public class DLog
         if (!IsShow(DLogType.Assert)) return;
         LOGColor(DLogType.Assert, _object == null ? "Null" : _object.ToString(), LogColor.NONE);
     }
+
+    public static void LogFormat(string _formatstr, params object[] _params)
+    {
+        if (!IsShow(DLogType.Log)) return;
+        LOGColor(DLogType.Log, string.Format(_formatstr, _params), LogColor.NONE);
+    }
+
+    public static void LogWarningFormat(string _formatstr, params object[] _params)
+    {
+        if (!IsShow(DLogType.Warning)) return;
+        LOGColor(DLogType.Warning, string.Format(_formatstr, _params), LogColor.NONE);
+    }
+
+    public static void LogErrorFormat(string _formatstr, params object[] _params)
+    {
+        if (!IsShow(DLogType.Error)) return;
+        LOGColor(DLogType.Error, string.Format(_formatstr, _params), LogColor.NONE);
+    }
+
 }
 
