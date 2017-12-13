@@ -132,8 +132,6 @@ namespace LitEngine
         {
             if (!string.IsNullOrEmpty(_nowapp))
                 DestroyGameCore(_nowapp);
-            if (string.IsNullOrEmpty(_nextapp))
-                throw new System.NullReferenceException("_nextapp 输入不正确.");
 
             UnityEngine.GameObject tobj = new UnityEngine.GameObject("Temp-" + _nextapp);
 
@@ -152,8 +150,6 @@ namespace LitEngine
         {
             if (!string.IsNullOrEmpty(_nowapp))
                 DestroyGameCore(_nowapp);
-            if (string.IsNullOrEmpty(_nextapp))
-                throw new System.NullReferenceException("_nextapp 输入不正确.");
 
             UnityEngine.GameObject tobj = new UnityEngine.GameObject("Temp-" + _nextapp);
 
@@ -172,8 +168,6 @@ namespace LitEngine
         {
             if (!string.IsNullOrEmpty(_nowapp))
                 DestroyGameCore(_nowapp);
-            if (string.IsNullOrEmpty(_nextapp))
-                throw new System.NullReferenceException("_nextapp 输入不正确.");
 
             GameCore ret = CreatGameCore(_nextapp);
             ret.LManager.LoadAsset(_startscene);
