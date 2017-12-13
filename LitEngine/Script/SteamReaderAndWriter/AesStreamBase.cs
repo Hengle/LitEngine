@@ -8,7 +8,8 @@ namespace LitEngine
         public class AesStreamBase : System.IDisposable
         {
             public static string AESKey = "fjeicl458c81k53mc7ckd823ng5bcr32";
-            public const int SafeByteLen = 100;
+            public const string AesTag = "LitEngineAes";
+            protected const int SafeByteLen = 100;
             protected bool mClosed = false;         
             protected RijndaelManaged mRijindael = null;
             protected Stream mStream = null;
@@ -51,20 +52,27 @@ namespace LitEngine
             virtual protected void DisposeStream()
             {
                 Close();
-                mCrypto.Dispose();
-                mStream.Dispose();
-                mRijindael.Clear();
+                if (mCrypto != null)
+                    mCrypto.Dispose();
+                if (mStream != null)
+                    mStream.Dispose();
+                if (mRijindael != null)
+                    mRijindael.Clear();
             }
             virtual public void Close()
             {
-                mCrypto.Close();
-                mStream.Close();
+                if(mCrypto != null)
+                    mCrypto.Close();
+                if (mStream != null)
+                    mStream.Close();
             }
 
             virtual public void Flush()
             {
-                mCrypto.Flush();
-                mStream.Flush();
+                if (mCrypto != null)
+                    mCrypto.Flush();
+                if (mStream != null)
+                    mStream.Flush();
             }
 
             #region AES
@@ -124,6 +132,12 @@ namespace LitEngine
                 string tempfilename = sourceFileName + ".temp";
 
                 AESReader treader = new AESReader(sourceFileName);
+                if(!treader.IsEncrypt)
+                {
+                    treader.Dispose();
+                    DLog.LogError("试图解密一个非加密文件或文件无法解密.");
+                    return;
+                }
                 FileStream tfilesource = File.Create(tempfilename);
 
                 byte[] tbuffer = new byte[sOnelen];

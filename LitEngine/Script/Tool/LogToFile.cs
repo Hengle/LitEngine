@@ -126,7 +126,7 @@ public class LogToFile
         sb.Append(string.Format("[{0}] ", System.DateTime.Now));
         sb.AppendLine(content);
 
-        if(_type == UnityEngine.LogType.Exception)
+        if(_type == UnityEngine.LogType.Exception && callstack.Length>0)
         {
             sb.AppendLine("****************系统堆栈****************");
             sb.AppendLine(callstack);

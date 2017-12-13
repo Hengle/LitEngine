@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 namespace LitEngine
 {
+    using IO;
+    using Loader;
     public class RootScript : MonoBehaviour
     {
         public string APPNAME = "";
@@ -47,13 +49,47 @@ namespace LitEngine
                 DLog.LogError("脚本不可重复加载.");
                 return;
             }
-                
+
+            byte[] dllbytes = null;
+            byte[] pdbbytes = null;
+
             string tdllPath = mCore.AppPersistentScriptDataPath + _filename;
             if (System.IO.File.Exists(tdllPath + ".dll"))
             {
-                mCore.SManager.LoadProject(tdllPath);
-                StartMain(StartClass, StartFun);
+                dllbytes = System.IO.File.ReadAllBytes(tdllPath + ".dll");
+                pdbbytes = System.IO.File.ReadAllBytes(tdllPath + ".pdb");
             }
+            else
+            {
+                tdllPath = mCore.AppStreamingAssetsScriptDataPath + _filename;
+                AssetBundle tdllbundle = AssetBundle.LoadFromFile(BaseBundle.CombineSuffixName(tdllPath + ".dll"));
+                AssetBundle tpdbbundle = AssetBundle.LoadFromFile(BaseBundle.CombineSuffixName(tdllPath + ".pdb"));
+                if(tdllbundle != null && tpdbbundle != null)
+                {
+                    TextAsset tdlltext = tdllbundle.LoadAsset<TextAsset>("TextAsset");
+                    TextAsset tpdbtext = tpdbbundle.LoadAsset<TextAsset>("TextAsset");
+
+                    dllbytes = tdlltext.bytes;
+                    pdbbytes = tpdbtext.bytes;
+                }
+                
+            }
+            if (dllbytes == null || pdbbytes == null)
+            {
+                DLog.LogErrorFormat("LoadScriptFormFile{dllbytes = {0},pdbbytes = {1}}", dllbytes, pdbbytes);
+                return;
+            }
+
+            AESReader tdllreader = new AESReader(dllbytes);
+            AESReader tpdbreader = new AESReader(pdbbytes);
+
+            dllbytes = tdllreader.ReadAllBytes();
+            pdbbytes = tpdbreader.ReadAllBytes();
+
+            tdllreader.Dispose();
+            tpdbreader.Dispose();
+
+            LoadScriptFormMemory(dllbytes, pdbbytes);
         }
 
         public void LoadScriptFormMemory(byte[] _dllbytes,byte[] _pdbbytes)
@@ -68,6 +104,8 @@ namespace LitEngine
                 mCore.SManager.LoadProjectByBytes(_dllbytes, _pdbbytes);
                 StartMain(StartClass, StartFun);
             }
+            else
+                DLog.LogErrorFormat("LoadScriptFormMemory(byte[] _dllbytes = }|,byte[] _pdbbytes){}");
         }
     }
 }

@@ -26,6 +26,7 @@ namespace LitEngine
                 ICryptoTransform cTransform = mRijindael.CreateEncryptor();
                 mCrypto = new CryptoStream(mStream, cTransform, CryptoStreamMode.Write);
                 mWriterStream = new BinaryWriter(mCrypto);
+                WriteBytes(System.Text.Encoding.UTF8.GetBytes(AesTag));
             }
 
             override public void Close()
@@ -38,12 +39,14 @@ namespace LitEngine
                     WriteBytes(new byte[SafeByteLen]);
 
                 Flush();
-                mWriterStream.Close();
+                if (mWriterStream != null)
+                    mWriterStream.Close();
                 base.Close();
             }
             override public void Flush()
             {
-                mWriterStream.Flush();
+                if (mWriterStream != null)
+                    mWriterStream.Flush();
                 base.Flush();
             }
 

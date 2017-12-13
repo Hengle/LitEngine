@@ -38,6 +38,7 @@ namespace LitEngine
         #region 静态函数及变量
         #region 变量
         public static UseScriptType sUseScriptType = UseScriptType.UseScriptType_LS;
+        public static bool UseEncryptScript = false;
         private static AppCore sInstance = null;
 
         private SafeMap<string, GameCore> mGameMap = new SafeMap<string, GameCore>();
@@ -66,7 +67,6 @@ namespace LitEngine
                 return UnityEngine.Application.streamingAssetsPath;
             }
         }
-        public string AppStreamingAssetsDataPath { get; private set; }
         public static AppCore App
         {
             get
