@@ -104,6 +104,7 @@ public class CreatCLRBindingFile
         ILRuntime.Runtime.CLRBinding.BindingCodeGenerator.GenerateBindingCode(_types, _output);
 
         DLog.Log("导出完成.");
+        UnityEditor.AssetDatabase.Refresh();
     }
 
 }
