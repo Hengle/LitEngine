@@ -1,4 +1,5 @@
 ﻿/*
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,6 +10,8 @@ public class CreatCLRBindingFile
     [UnityEditor.MenuItem("GenerateBinding/AutoBinding")]
     public static void CreatAutoGen()
     {
+  
+        UnityEditor.AssetDatabase.Refresh();
         DLog.Log("开始导出CLR绑定类.");
         string _output = Application.dataPath + "\\AutoGenerate";
         List<Type> _types = new List<Type>();
@@ -30,6 +33,9 @@ public class CreatCLRBindingFile
         _types.Add(typeof(System.IO.MemoryStream));
         _types.Add(typeof(ValueType));
         _types.Add(typeof(Array));
+        _types.Add(typeof(List<int>));
+        _types.Add(typeof(List<float>));
+        _types.Add(typeof(List<string>));
         _types.Add(typeof(List<UnityEngine.Object>));
         _types.Add(typeof(List<UnityEngine.GameObject>));
         _types.Add(typeof(List<UnityEngine.Transform>));
@@ -66,8 +72,6 @@ public class CreatCLRBindingFile
         _types.Add(typeof(LitEngine.DownLoad.DownLoadTask));
         _types.Add(typeof(LitEngine.Loader.LoaderManager));
 
-        _types.Add(typeof(LitEngine.IO.Reader));
-        _types.Add(typeof(LitEngine.IO.Writer));
         _types.Add(typeof(LitEngine.IO.AesStreamBase));
         _types.Add(typeof(LitEngine.IO.AESReader));
         _types.Add(typeof(LitEngine.IO.AESWriter));
@@ -104,6 +108,7 @@ public class CreatCLRBindingFile
         ILRuntime.Runtime.CLRBinding.BindingCodeGenerator.GenerateBindingCode(_types, _output);
 
         DLog.Log("导出完成.");
+
         UnityEditor.AssetDatabase.Refresh();
     }
 

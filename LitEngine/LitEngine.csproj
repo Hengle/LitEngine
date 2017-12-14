@@ -72,9 +72,6 @@
     <Compile Include="Script\SteamReaderAndWriter\AESReader.cs" />
     <Compile Include="Script\SteamReaderAndWriter\AesStreamBase.cs" />
     <Compile Include="Script\SteamReaderAndWriter\AESWriter.cs" />
-    <Compile Include="Script\SteamReaderAndWriter\LReadStream.cs" />
-    <Compile Include="Script\SteamReaderAndWriter\LStreamBase.cs" />
-    <Compile Include="Script\SteamReaderAndWriter\LWriteStream.cs" />
     <Compile Include="Script\STL\SafeList.cs" />
     <Compile Include="Script\UnZip\UnZipFile.cs" />
     <Compile Include="Script\DownLoad\DownLoadObject.cs" />
@@ -431,9 +428,6 @@
     <Compile Include="Script\UnZip\Zip\Zip\ZipInputStream.cs" />
     <Compile Include="Script\UnZip\Zip\Zip\ZipNameTransform.cs" />
     <Compile Include="Script\UnZip\Zip\Zip\ZipOutputStream.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Script\SteamReaderAndWriter\steam.txt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

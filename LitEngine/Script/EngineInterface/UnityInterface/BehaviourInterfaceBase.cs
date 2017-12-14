@@ -143,7 +143,6 @@ namespace LitEngine
                 }
                 try {
                     mAppName = _AppName;
-                    DLog.Log(_class + "->Init. App's name :" + mAppName);
                     mCore = AppCore.App[mAppName];
                     mCodeTool = mCore.SManager.CodeTool;
                     mScriptClass = _class;

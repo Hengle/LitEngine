@@ -106,10 +106,10 @@ namespace LitEngine
         {
             try
             {
-                using (Reader treader = new Reader(_PathFile))
+                using (AESReader treader = new AESReader(_PathFile))
                 {
 
-                    int len = treader.ReadInt();
+                    int len = treader.ReadInt32();
                     byte[] tbuffer = treader.ReadBytes(len);
                     byte[] tdllbyts = null;
                     byte[] tpdbbyts = null;

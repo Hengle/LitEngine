@@ -17,7 +17,6 @@ namespace LitEngine
             private WaitingList mWaitLoadBundleList = null;
             private UpdateObject mUpdateAction = null;
             private bool mIsRegToUpdate = false;
-            private AssetBundle mManifestBundle;
             public AssetBundleManifest Manifest { get; private set; }
             #region PATH_LOADER
             private  string mStreamingDataPath = null;
@@ -82,8 +81,8 @@ namespace LitEngine
             }
             protected void DisposeNoGcCode()
             {
-                if (mManifestBundle != null)
-                    mManifestBundle.Unload(true);
+                if (Manifest != null)
+                    Object.DestroyImmediate(Manifest,true);
                 mBundleTaskList.Clear();
                 if (mWaitLoadBundleList.Count != 0)
                     DLog.LogError(mAppName +":删除LoaderManager时,发现仍然有未完成的加载动作.请确保加载完成后正确调用.");
@@ -96,13 +95,15 @@ namespace LitEngine
 
             private void SetAppName(string _appname)
             {
-                DLog.Log("载入资源列表-"+ _appname);
                 mAppName = _appname;
-                mManifestBundle = AssetBundle.LoadFromFile(GetFullPath(mAppName));
-                if (mManifestBundle != null)
-                    Manifest = mManifestBundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+                AssetBundle tbundle = AssetBundle.LoadFromFile(GetFullPath(mAppName));
+                if (tbundle != null)
+                {
+                    Manifest = tbundle.LoadAsset<AssetBundleManifest>("AssetBundleManifest");
+                    tbundle.Unload(false);
+                }
                 else
-                    DLog.LOGColor(DLogType.Warning, "未能加载App资源列表 AppName = " + mAppName, LogColor.RED);
+                    DLog.LogErrorFormat("未能加载App资源列表 AppName = {0}" , mAppName);
                 
             }
             #endregion

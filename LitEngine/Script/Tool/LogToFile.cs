@@ -126,15 +126,16 @@ public class LogToFile
         sb.Append(string.Format("[{0}] ", System.DateTime.Now));
         sb.AppendLine(content);
 
-        if(_type == UnityEngine.LogType.Exception && callstack.Length>0)
+        if(sStackLogTypeList.ContainsKey(_type))
         {
-            sb.AppendLine("****************系统堆栈****************");
-            sb.AppendLine(callstack);
-            sb.AppendLine("****************************************");
+            sb.AppendLine("*******************堆栈*******************");
+            if (callstack.Length > 2)
+                sb.AppendLine(callstack);
+            else
+                sb.AppendLine(GetStackTrace());
+            sb.AppendLine("******************************************");    
         }
-            
-        if (sStackLogTypeList.ContainsKey(_type))
-            sb.AppendLine(GetStackTrace());
+
         System.IO.File.AppendAllText(GetNowLogName(), sb.ToString(), System.Text.Encoding.UTF8);
     }
 
@@ -167,7 +168,7 @@ public class LogToFile
                     if (j < tparams.Length - 1)
                         tparamsstr.Append(",");
                 }
-                string tmsg = string.Format("---->{0}:{1}({2})(line:{3})", tmethod.DeclaringType.ToString(), tmethod.Name, tparamsstr.ToString(), tframe.GetFileLineNumber());
+                string tmsg = string.Format("{0}:{1}({2})(line:{3})", tmethod.DeclaringType.ToString(), tmethod.Name, tparamsstr.ToString(), tframe.GetFileLineNumber());
                 tstacktracebuilder.AppendLine(tmsg);
             }
         }

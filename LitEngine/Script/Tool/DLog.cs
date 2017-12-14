@@ -20,21 +20,14 @@ public enum DLogType
     Assert,
     TrueLog,
 }
-public enum DLogLevel
-{
-    None = 0,
-    Log,
-    Warning,
-    Error,
-    Assert,
-}
+
 public class DLog
 {
    
-    public static DLogLevel MinLogLevel = DLogLevel.None;
+    public static DLogType MinLogType = DLogType.Log;
     private static bool IsShow(DLogType _type)
     {
-        int ret = (int)_type - (int)MinLogLevel;
+        int ret = (int)_type - (int)MinLogType;
         if (ret < 0) return false;
         return true;
     }
@@ -63,10 +56,6 @@ public class DLog
                 break;
         }
         return ret;
-    }
-    public static string GetString(string _str, params object[] _params)
-    {
-        return string.Format(_str, _params);
     }
 
     public static void LOGColor(DLogType _type, string _msg, LogColor _color)
