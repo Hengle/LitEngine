@@ -85,7 +85,17 @@ namespace LitEngine
                     Object.DestroyImmediate(Manifest,true);
                 mBundleTaskList.Clear();
                 if (mWaitLoadBundleList.Count != 0)
-                    DLog.LogError(mAppName +":删除LoaderManager时,发现仍然有未完成的加载动作.请确保加载完成后正确调用.");
+                {
+                    DLog.LogError(mAppName + ":删除LoaderManager时,发现仍然有未完成的加载动作.可能会对后续资源加载造成影响.");
+                    for (int i = mWaitLoadBundleList.Count - 1; i >= 0; i--)
+                    {
+                        BaseBundle tbundle = mWaitLoadBundleList[i];
+                        if (tbundle.IsDone()) continue;
+                        mBundleList.Remove(tbundle, false);
+                        PublicUpdateManager.AddWaitLoadBundle(tbundle);
+                    }
+                }
+                    
                 mWaitLoadBundleList.Clear();
                 RemoveAllAsset();
                 mUpdateAction.Dispose();
@@ -129,7 +139,7 @@ namespace LitEngine
                     {
                         BaseBundle tbundle = mWaitLoadBundleList[i];
                         if (tbundle.IsDone())
-                            mWaitLoadBundleList.Remove(tbundle);
+                            mWaitLoadBundleList.RemoveAt(i);
                     }
                 }
 

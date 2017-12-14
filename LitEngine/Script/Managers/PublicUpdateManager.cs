@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 namespace LitEngine
 {
     using UpdateSpace;
     using DownLoad;
     using UnZip;
+    using Loader;
     public class PublicUpdateManager : MonoManagerBase
     {
         private static PublicUpdateManager sInstance = null;
         private UpdateObjectVector UpdateList = new UpdateObjectVector(UpdateType.Update);
+        private List<BaseBundle> mWaitLoadBundle = new List<BaseBundle>();
         static private void CreatInstance()
         {
             if (sInstance == null)
@@ -19,17 +22,15 @@ namespace LitEngine
             }
         }
 
-        static public void AddUpdate(UpdateBase _uobj)
+        static public void AddWaitLoadBundle(BaseBundle _bundle)
         {
+            if (_bundle == null) return;
             if (sInstance == null) CreatInstance();
-            sInstance.UpdateList.Add(_uobj);
-        }
-
-        static public void AddUpdate(string _key,System.Action _act)
-        {
-            if (sInstance == null) CreatInstance();
-            UpdateBase tobj = new UpdateObject(_key, _act);
-            sInstance.UpdateList.Add(tobj);
+            if(sInstance.mWaitLoadBundle.Contains(_bundle))
+            {
+                sInstance.mWaitLoadBundle.Add(_bundle);
+                sInstance.SetActive(true);
+            }
         }
 
         static public void ClearByKey(string _appkey)
@@ -70,10 +71,25 @@ namespace LitEngine
                 gameObject.SetActive(_active);
         }
 
+        void UpdateWaitLoad()
+        {
+            if (mWaitLoadBundle.Count == 0) return;
+            for(int i = mWaitLoadBundle.Count -1;i>=0;i--)
+            {
+                BaseBundle tbundle = mWaitLoadBundle[i];
+                if(tbundle.IsDone())
+                {
+                    mWaitLoadBundle.RemoveAt(i);
+                    tbundle.Destory();
+                }
+            }
+        }
+
         void Update()
         {
             UpdateList.Update();
-            if (UpdateList.Count == 0)
+            UpdateWaitLoad();
+            if (UpdateList.Count == 0 && mWaitLoadBundle.Count == 0)
                 gameObject.SetActive(false);
         }
     }

@@ -9,6 +9,52 @@ namespace LitEngine
         public const string ResDataPath = "/ResData/";//App资源目录
         public const string ConfigDataPath = "/ConfigData/";//App配置文件目录
         public const string ScriptDataPath = "/LogicDll/";//App配置文件目录
+        #region static path获取
+        static public string GetPersistentAppPath(string _appname)
+        {
+            return CombinePath(AppCore.persistentDataPath, DataPath, _appname);
+        }
+        static public string GetStreamingAssetsAppPath(string _appname)
+        {
+            return CombinePath(AppCore.streamingAssetsPath, DataPath, _appname);
+        }
+        static public string CombinePath(params object[] _params)
+        {
+            for (int i = 0; i < _params.Length; i++)
+            {
+                string tobjstr = _params[i].ToString();
+                if(i!=0)
+                    tobjstr = RemoveStartWithString(tobjstr, "/");
+                tobjstr = RemoveEndWithString(tobjstr, "/");
+                _params[i] = tobjstr;
+            }
+
+            System.Text.StringBuilder tformatbuilder = new System.Text.StringBuilder();
+            for (int i = 0; i < _params.Length; i++)
+            {
+                tformatbuilder.Append("{");
+                tformatbuilder.Append(i);
+                tformatbuilder.Append("}/");
+            }
+
+            return string.Format(tformatbuilder.ToString(), _params);
+        }
+
+        static public string RemoveEndWithString(string _source,string _des)
+        {
+            while (_source.EndsWith(_des))
+                _source = _source.Remove(_source.Length - _des.Length);
+            return _source;
+        }
+
+        static public string RemoveStartWithString(string _source, string _des)
+        {
+            while (_source.StartsWith(_des))
+                _source = _source.Remove(0,_des.Length);
+            return _source;
+        }
+
+        #endregion
         #region 类变量
         private AppCore mParentCore;
         protected bool mIsInited = false;
@@ -17,7 +63,6 @@ namespace LitEngine
             get;
             private set;
         }
-        public string AppPath { get; private set; }
         public string AppPersistentDataPath { get; private set; }
         public string AppStreamingAssetsDataPath { get; private set; }
         public string AppResourcesDataPath { get; private set; }
@@ -141,19 +186,18 @@ namespace LitEngine
         #region 方法
         private void SetPath()
         {
-            AppPath = string.Format("{0}/{1}/", DataPath, AppName).Replace("//", "/");
-            AppPersistentDataPath = string.Format("{0}/{1}/", AppCore.persistentDataPath, AppPath).Replace("//", "/");
-            AppStreamingAssetsDataPath = string.Format("{0}/{1}/", Application.streamingAssetsPath, AppPath).Replace("//", "/");
-            AppResourcesDataPath = AppPath;
+            AppResourcesDataPath = CombinePath(DataPath, AppName);
+            AppPersistentDataPath = GetPersistentAppPath(AppName);
+            AppStreamingAssetsDataPath = GetStreamingAssetsAppPath(AppName);
 
-            AppPersistentResDataPath = string.Format("{0}{1}", AppPersistentDataPath, ResDataPath).Replace("//", "/");
-            AppStreamingAssetsResDataPath = string.Format("{0}{1}", AppStreamingAssetsDataPath, ResDataPath).Replace("//", "/");
+            AppPersistentResDataPath = CombinePath(AppPersistentDataPath, ResDataPath);
+            AppStreamingAssetsResDataPath = CombinePath(AppStreamingAssetsDataPath, ResDataPath);
 
-            AppPersistentConfigDataPath = string.Format("{0}{1}", AppPersistentDataPath, ConfigDataPath).Replace("//", "/");
-            AppStreamingAssetsConfigDataPath = string.Format("{0}{1}", AppStreamingAssetsDataPath, ConfigDataPath).Replace("//", "/");
+            AppPersistentConfigDataPath = CombinePath(AppPersistentDataPath, ConfigDataPath);
+            AppStreamingAssetsConfigDataPath = CombinePath(AppStreamingAssetsDataPath, ConfigDataPath);
 
-            AppPersistentScriptDataPath = string.Format("{0}{1}", AppPersistentDataPath, ScriptDataPath).Replace("//", "/");
-            AppStreamingAssetsScriptDataPath = string.Format("{0}{1}", AppStreamingAssetsDataPath, ScriptDataPath).Replace("//", "/");
+            AppPersistentScriptDataPath = CombinePath(AppPersistentDataPath, ScriptDataPath);
+            AppStreamingAssetsScriptDataPath = CombinePath(AppStreamingAssetsDataPath, ScriptDataPath);
         }
 
         public void AddScriptInterface(ScriptInterface.BehaviourInterfaceBase _scriptinterface)

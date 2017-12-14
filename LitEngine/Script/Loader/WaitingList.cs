@@ -46,6 +46,11 @@ namespace LitEngine
             {
                 mList.Remove(_bundle);
             }
+
+            public void RemoveAt(int _index)
+            {
+                mList.RemoveAt(_index);
+            }
         }
     }
 

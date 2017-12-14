@@ -87,6 +87,7 @@ namespace LitEngine
 
             public void Update()
             {
+                if (mList.Count == 0) return;
                 for (int i = mList.Count - 1; i >= 0; i--)
                     RunUpdate(mList[i]);
             }

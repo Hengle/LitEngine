@@ -61,7 +61,7 @@ namespace LitEngine
                 mList.Add(_bundle.AssetName, _bundle);
             }
 
-            public void Remove(BaseBundle _bundle)
+            public void Remove(BaseBundle _bundle, bool _destory = true)
             {
                 if (_bundle == null)
                 {
@@ -72,13 +72,15 @@ namespace LitEngine
                 Remove(_bundle.AssetName);
             }
 
-            public void Remove(string _key)
+            public void Remove(string _key, bool _destory = true)
             {
                 if (!Contains(_key))
                     return;
                 BaseBundle tbundle = this[_key];
-                mList.Remove(BaseBundle.DeleteSuffixName(_key));
-                tbundle.Destory();
+                tbundle.Parent = null;
+                mList.Remove(BaseBundle.DeleteSuffixName(_key));              
+                if (_destory)
+                    tbundle.Destory();
             }
 
             public void ReleaseBundle(BaseBundle _bundle)
