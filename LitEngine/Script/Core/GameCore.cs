@@ -249,12 +249,12 @@ namespace LitEngine
             PublicUpdateManager.UnZipFileAsync(AppName, _source, _destination, _finished, _progress);
         }
 
-        public void HttpSend(string _url, string _key, System.Action<string, byte[]> _delegate)
+        public void HttpSend(string _url, string _key, System.Action<string,string, byte[]> _delegate)
         {
             NetTool.HttpNet.Send(AppName, _url, _key, _delegate);
         }
 
-        public void HttpSendHaveHeader(string _url, string _key,Dictionary<string,string> _headers, System.Action<string, byte[]> _delegate)
+        public void HttpSendHaveHeader(string _url, string _key,Dictionary<string,string> _headers, System.Action<string,string, byte[]> _delegate)
         {
             NetTool.HttpData tdata = new NetTool.HttpData(AppName, _key, _url, _delegate);
 

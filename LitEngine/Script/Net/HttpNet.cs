@@ -31,8 +31,8 @@ namespace LitEngine
             public HttpWebRequest Request { get; private set; }
             private Thread mSendThread = null;
 
-            System.Action<string, byte[]> mDelgate;
-            public HttpData(string _appname,string _key, string _url, System.Action<string, byte[]> _delgate)
+            System.Action<string,string, byte[]> mDelgate;
+            public HttpData(string _appname,string _key, string _url, System.Action<string,string, byte[]> _delgate)
             {
                 AppName = _appname;
                 mKey = _key;
@@ -148,7 +148,7 @@ namespace LitEngine
             {
                 if (!IsDone) return;
                 if (mDelgate != null && mDelgate.Target != null)
-                    mDelgate(mKey, RecBuffer);
+                    mDelgate(mKey, Error, RecBuffer);
                 mSending = false;
                 Dispose();
             }
@@ -175,7 +175,7 @@ namespace LitEngine
                     sInstance.UpdateList.ClearByKey(_appkey);
             }
 
-            static public void Send(string _appname, string _url, string _key, System.Action<string, byte[]> _delegate)
+            static public void Send(string _appname, string _url, string _key, System.Action<string,string, byte[]> _delegate)
             {
                 if (sInstance == null) CreatInstance();
                 SendData(new HttpData(_appname, _key, _url, _delegate));

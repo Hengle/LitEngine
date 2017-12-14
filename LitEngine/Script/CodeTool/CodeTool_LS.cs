@@ -52,6 +52,7 @@ namespace LitEngine
             mApp.DelegateManager.RegisterMethodDelegate<string, string>();
             mApp.DelegateManager.RegisterMethodDelegate<string, object>();
 
+            mApp.DelegateManager.RegisterMethodDelegate<string,string,byte[]>();
             mApp.DelegateManager.RegisterMethodDelegate<long, long, float>();
             mApp.DelegateManager.RegisterMethodDelegate<int,int,float>();
             mApp.DelegateManager.RegisterMethodDelegate<string, int, int>();

@@ -101,30 +101,50 @@ namespace LitEngine
             {
                 string tempfilename = sourceFileName + ".temp";
 
-                FileStream tsourcefile = File.OpenRead(sourceFileName);
+                AESReader tsourcefile = new AESReader(sourceFileName);
+                if (tsourcefile.IsEncrypt)
+                {
+                    DLog.LogError("尝试对已经加密的文件进行2次加密.sourceFileName = "+ sourceFileName);
+                    tsourcefile.Dispose();
+                    return;
+                }
                 AESWriter twriter = new AESWriter(tempfilename);
 
-                long tlength = tsourcefile.Length;
-                byte[] tbuffer = new byte[sOnelen];
-                long readedsize = 0;
-                int treadsize = tsourcefile.Read(tbuffer, 0, sOnelen);
-                while (treadsize > 0)
+                bool tisfinised = false;
+                try
                 {
-                    readedsize += treadsize;
-                    twriter.WriteBytesWhere(tbuffer, 0, treadsize);
-                    twriter.Flush();
+                    long tlength = tsourcefile.Length;
+                    byte[] tbuffer = new byte[sOnelen];
+                    long readedsize = 0;
+                    int treadsize = tsourcefile.Read(tbuffer, 0, sOnelen);
+                    while (treadsize > 0)
+                    {
+                        readedsize += treadsize;
+                        twriter.WriteBytesWhere(tbuffer, 0, treadsize);
+                        twriter.Flush();
 
-                    treadsize = tsourcefile.Read(tbuffer, 0, sOnelen);      
+                        treadsize = tsourcefile.Read(tbuffer, 0, sOnelen);
+                    }
+                    tisfinised = true;
+                }
+                catch (System.Exception _error)
+                {
+                    DLog.LogError(_error);
+                    File.Delete(tempfilename);
                 }
 
                 tsourcefile.Close();
                 tsourcefile.Dispose();
-
                 twriter.Close();
                 twriter.Dispose();
 
-                File.Delete(sourceFileName);
-                File.Move(tempfilename, sourceFileName);
+                if(tisfinised)
+                {
+                    File.Delete(sourceFileName);
+                    File.Move(tempfilename, sourceFileName);
+                }
+               
+
             }
 
             public static void DeCryptFile(string sourceFileName)
@@ -140,24 +160,33 @@ namespace LitEngine
                 }
                 FileStream tfilesource = File.Create(tempfilename);
 
-                byte[] tbuffer = new byte[sOnelen];
-                long tlength = treader.Length;
-                long readedsize = 0;
-                int treadsize = treader.Read(tbuffer, 0, sOnelen);
-                while (treadsize > 0)
+                bool tisfinished = false;
+                try
                 {
-                    readedsize += treadsize;
+                    byte[] tbuffer = new byte[sOnelen];
+                    long tlength = treader.Length;
+                    long readedsize = 0;
+                    int treadsize = treader.Read(tbuffer, 0, sOnelen);
+                    while (treadsize > 0)
+                    {
+                        readedsize += treadsize;
 
-                    int twritesize = treadsize;
-                    if (readedsize + SafeByteLen >= tlength)
-                        twritesize -= SafeByteLen;
+                        int twritesize = treadsize;
+                        if (readedsize + SafeByteLen >= tlength)
+                            twritesize -= SafeByteLen;
 
-                    tfilesource.Write(tbuffer, 0, twritesize);
-                    tfilesource.Flush();
+                        tfilesource.Write(tbuffer, 0, twritesize);
+                        tfilesource.Flush();
 
-                    treadsize = treader.Read(tbuffer, 0, sOnelen);
+                        treadsize = treader.Read(tbuffer, 0, sOnelen);
+                    }
+                    tisfinished = true;
                 }
-
+                catch(System.Exception _error)
+                {
+                    DLog.LogError(_error);
+                    File.Delete(tempfilename);
+                }
                 treader.Close();
                 treader.Dispose();
 
@@ -165,9 +194,11 @@ namespace LitEngine
                 tfilesource.Close();
                 tfilesource.Dispose();
 
-                File.Delete(sourceFileName);
-                File.Move(tempfilename, sourceFileName);
-
+                if(tisfinished)
+                {
+                    File.Delete(sourceFileName);
+                    File.Move(tempfilename, sourceFileName);
+                }
             }
             #endregion
 

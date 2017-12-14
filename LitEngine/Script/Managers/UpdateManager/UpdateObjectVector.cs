@@ -82,6 +82,7 @@ namespace LitEngine
                 catch (System.Exception _erro)
                 {
                     DLog.LogError( string.Format("[{0}] [{1}]{2}", mUpdateType.ToString(), _runobj.Key, _erro.ToString()));
+                    _runobj.UnRegToOwner();
                 }
             }
 
@@ -89,7 +90,7 @@ namespace LitEngine
             {
                 if (mList.Count == 0) return;
                 for (int i = mList.Count - 1; i >= 0; i--)
-                    RunUpdate(mList[i]);
+                    RunUpdate(mList[i]);   
             }
         }
     }
