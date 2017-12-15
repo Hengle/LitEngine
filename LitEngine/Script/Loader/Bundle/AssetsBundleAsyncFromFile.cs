@@ -5,10 +5,17 @@ namespace LitEngine
     {
         public class AssetsBundleAsyncFromFile : BaseBundle
         {
+            public enum StepState
+            {
+                None = 0,
+                BundleLoad,
+                AssetsLoad,
+                LoadEnd,
+            }
+
             private AssetBundleCreateRequest mCreat = null;
             private AssetBundleRequest mLoadObjReq = null;
-            private bool mIsScene = false;
-            private bool mBCreated = false;
+            private StepState mStep = StepState.None;
             public AssetsBundleAsyncFromFile()
             {
             }
@@ -19,6 +26,7 @@ namespace LitEngine
 
             public override void LoadEnd()
             {
+                mStep = StepState.LoadEnd;
                 base.LoadEnd();
             }
             void CreatBundleReq()
@@ -35,13 +43,42 @@ namespace LitEngine
             }
             override public bool IsDone()
             {
-                if (!base.IsDone()) return false;
+                switch(mStep)
+                {
+                    case StepState.None:
+                        return base.IsDone();
+                    case StepState.LoadEnd:
+                        return true;
+                    case StepState.BundleLoad:
+                        return BundleLoad();
+                    case StepState.AssetsLoad:
+                        return AssetsLoad();
+                }
+                return true;
+            }
 
-                if (Loaded) return true;
+            private bool AssetsLoad()
+            {
 
+                if (!mLoadObjReq.isDone) return false;
+                mAsset = mLoadObjReq.asset;
+                if (mAsset == null)
+                {
+                    mAsset = ((AssetBundle)mAssetsBundle).mainAsset;
+                    DLog.LogError("在资源包 " + mPathName + " 中找不到文件名:" + DeleteSuffixName(mAssetName).ToLower() + " 的资源。或者因为资源的命名不规范导致unity加载模块找不到该资源. ");
+                }
+
+                mCreat = null;
+                mLoadObjReq = null;
+                LoadEnd();
+                return true;
+            }
+
+            private bool BundleLoad()
+            {
                 if (mCreat == null)
                 {
-                    DLog.LogError( "erro loadasync.载入过程中，错误的调用了清除函数。mAssetName = "+ mAssetName);
+                    DLog.LogError("erro loadasync.载入过程中，错误的调用了清除函数。mAssetName = " + mAssetName);
                     LoadEnd();
                     return false;
                 }
@@ -50,53 +87,38 @@ namespace LitEngine
                     mProgress = mCreat.progress;
                     return false;
                 }
-                if (!mBCreated)
+
+                mProgress = mCreat.progress;
+                mAssetsBundle = mCreat.assetBundle;
+                if (mAssetsBundle == null)
                 {
-                    mProgress = mCreat.progress;
-                    mAssetsBundle = mCreat.assetBundle;
-                    if (mAssetsBundle == null)
-                    {
-                        DLog.LogError("AssetsBundleAsyncFromFile-erro created。文件载入失败,请检查文件名:" + mPathName);
-                        LoadEnd();
-                        return true;
-                    }
-
-                    if (((AssetBundle)mAssetsBundle).isStreamedSceneAssetBundle)
-                    {
-                        mAsset = ((AssetBundle)mAssetsBundle).mainAsset;
-                        mIsScene = true;
-                    }
-                    else
-                    {
-                        CreatBundleReq();
-                    }
-
-                    mBCreated = true;
+                    DLog.LogError("AssetsBundleAsyncFromFile-erro created。文件载入失败,请检查文件名:" + mPathName);
+                    LoadEnd();
+                    return true;
                 }
 
-                if (!mIsScene)
+                if (((AssetBundle)mAssetsBundle).isStreamedSceneAssetBundle)
                 {
-                    if (!mLoadObjReq.isDone) return false;
-                    mAsset = mLoadObjReq.asset;
-                    if (mAsset == null)
-                    {
-                        mAsset = ((AssetBundle)mAssetsBundle).mainAsset;
-                        DLog.LogError("在资源包 " + mPathName + " 中找不到文件名:" + DeleteSuffixName(mAssetName).ToLower() + " 的资源。或者因为资源的命名不规范导致unity加载模块找不到该资源. " );
-                    }
-
+                    mAsset = ((AssetBundle)mAssetsBundle).mainAsset;
+                    mCreat = null;
+                    mLoadObjReq = null;
+                    LoadEnd();
+                    return true;
                 }
-                mCreat = null;
-                mLoadObjReq = null;
-                LoadEnd();
-
-                return true;
+                else
+                {
+                    CreatBundleReq();
+                    mStep = StepState.AssetsLoad;
+                    return false;
+                }
+                 
             }
 
             public override void Load(LoaderManager _loader)
             {
                 mPathName = _loader.GetFullPath(mAssetName);
                 mCreat = AssetBundle.LoadFromFileAsync(mPathName);
-
+                mStep = StepState.BundleLoad;
                 base.Load(_loader);
             }
 
