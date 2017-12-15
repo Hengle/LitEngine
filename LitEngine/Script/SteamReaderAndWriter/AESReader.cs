@@ -34,11 +34,21 @@ namespace LitEngine
                 mCrypto = new CryptoStream(mStream, cTransform, CryptoStreamMode.Read);
                 mReaderStream = new BinaryReader(mCrypto);
 
-                byte[] tbytes =  ReadBytes(AesTag.Length);
-                string ttag = System.Text.Encoding.UTF8.GetString(tbytes);
-                IsEncrypt = AesTag.Equals(ttag);              
-
-                if(!IsEncrypt)
+                byte[] tbytes = null;
+                try
+                {
+                    tbytes = ReadBytes(AesTag.Length);
+                }
+                catch (System.Exception _error)
+                {
+                    IsEncrypt = false;
+                }
+                if (tbytes != null)
+                {
+                    string ttag = System.Text.Encoding.UTF8.GetString(tbytes);
+                    IsEncrypt = AesTag.Equals(ttag);
+                }
+                if (!IsEncrypt)
                 {
                     #region rest stream
                     mReaderStream.Close();

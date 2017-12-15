@@ -59,21 +59,7 @@ namespace LitEngine
                 dllbytes = System.IO.File.ReadAllBytes(tdllPath + ".dll");
                 pdbbytes = System.IO.File.ReadAllBytes(tdllPath + ".pdb");
             }
-            else
-            {
-                tdllPath = mCore.AppStreamingAssetsScriptDataPath + _filename;
-                AssetBundle tdllbundle = AssetBundle.LoadFromFile(BaseBundle.CombineSuffixName(tdllPath + ".dll"));
-                AssetBundle tpdbbundle = AssetBundle.LoadFromFile(BaseBundle.CombineSuffixName(tdllPath + ".pdb"));
-                if(tdllbundle != null && tpdbbundle != null)
-                {
-                    TextAsset tdlltext = tdllbundle.LoadAsset<TextAsset>("TextAsset");
-                    TextAsset tpdbtext = tpdbbundle.LoadAsset<TextAsset>("TextAsset");
 
-                    dllbytes = tdlltext.bytes;
-                    pdbbytes = tpdbtext.bytes;
-                }
-                
-            }
             if (dllbytes == null || pdbbytes == null)
             {
                 DLog.LogErrorFormat("LoadScriptFormFile{dllbytes = {0},pdbbytes = {1}}", dllbytes, pdbbytes);
