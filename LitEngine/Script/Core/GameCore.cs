@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
+using UnityEngine.SceneManagement;
 namespace LitEngine
 {
     using Loader;
@@ -58,6 +60,7 @@ namespace LitEngine
         #region 类变量
         private AppCore mParentCore;
         protected bool mIsInited = false;
+        private bool IsSceneLoading = false;
         public string AppName
         {
             get;
@@ -152,6 +155,8 @@ namespace LitEngine
 
         override protected void DisposeNoGcCode()
         {
+            if (IsSceneLoading)
+                DLog.LogError("异步加载场景未完成时,此时进行卸载GameCore操作,可能引起场景错乱.");
             //公用
             PublicUpdateManager.ClearByKey(AppName);
             NetTool.HttpNet.ClearByKey(AppName);
@@ -199,7 +204,7 @@ namespace LitEngine
             AppPersistentScriptDataPath = CombinePath(AppPersistentDataPath, ScriptDataPath);
             AppStreamingAssetsScriptDataPath = CombinePath(AppStreamingAssetsDataPath, ScriptDataPath);
         }
-
+        #region interface
         public void AddScriptInterface(ScriptInterface.BehaviourInterfaceBase _scriptinterface)
         {
             if (mScriptInterfaces.Contains(_scriptinterface)) return;
@@ -211,14 +216,16 @@ namespace LitEngine
             if (!mScriptInterfaces.Contains(_scriptinterface)) return;
             mScriptInterfaces.Remove(_scriptinterface);
         }
+        #endregion
 
+        #region Object
         public void DontDestroyOnLoad(UnityEngine.GameObject _obj)
         {
             UnityEngine.Object.DontDestroyOnLoad(_obj);
-            if(!mDontDestroyList.Contains(_obj))
+            if (!mDontDestroyList.Contains(_obj))
                 mDontDestroyList.Add(_obj);
         }
-        public void DestroyObject(UnityEngine.GameObject _obj,float _t)
+        public void DestroyObject(UnityEngine.GameObject _obj, float _t)
         {
             if (mDontDestroyList.Contains(_obj))
                 mDontDestroyList.Remove(_obj);
@@ -237,6 +244,54 @@ namespace LitEngine
                 mDontDestroyList.Remove(_obj);
             UnityEngine.GameObject.Destroy(_obj);
         }
+        #endregion
+
+        #region Scene
+        public void LoadScene(string _scenename)
+        {
+            if (IsSceneLoading)
+            {
+                DLog.LogError("The Scene is Loading.");
+                return;
+            }
+            LManager.LoadAsset(_scenename);
+            _scenename = _scenename.Replace(".unity", "");
+            UnityEngine.SceneManagement.SceneManager.LoadScene(_scenename);
+        }
+        System.Action mLoadSceneCall = null;
+        public void LoadSceneAsync(string _scenename,System.Action _FinishdCall)
+        {
+            if (IsSceneLoading)
+            {
+                DLog.LogError("The Scene is Loading.");
+                return;
+            }
+            IsSceneLoading = true;
+            mLoadSceneCall = _FinishdCall;
+            LManager.LoadAssetAsync(_scenename, _scenename, LoadedStartScene);
+        }
+
+        private string mNowLoadingScene = null;
+        private void LoadedStartScene(string _key, object _object)
+        {
+            mNowLoadingScene = _key.Replace(".unity", "");
+            SceneManager.sceneLoaded += LoadSceneCall;
+            AsyncOperation topert = SceneManager.LoadSceneAsync(mNowLoadingScene);
+
+        }
+        private void LoadSceneCall(Scene _scene, LoadSceneMode _mode)
+        {
+            if (!_scene.name.Equals(mNowLoadingScene)) return;
+            if (mLoadSceneCall == null)
+                mLoadSceneCall();
+            mLoadSceneCall = null;
+            SceneManager.sceneLoaded -= LoadSceneCall;
+            mNowLoadingScene = null;
+            IsSceneLoading = false;
+        }
+
+        #endregion
+
         #endregion
         #region Tool方法
         public void DownLoadFileAsync(string _sourceurl, string _destination, bool _IsClear, System.Action<string, string> _finished, System.Action<long, long, float> _progress)

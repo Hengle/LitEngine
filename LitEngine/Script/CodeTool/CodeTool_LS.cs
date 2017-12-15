@@ -3,6 +3,7 @@ using ILRuntime.CLR.TypeSystem;
 using ILRuntime.Runtime.Intepreter;
 using ILRuntime.CLR.Method;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 namespace LitEngine
 {
     using UpdateSpace;
@@ -43,7 +44,10 @@ namespace LitEngine
             mApp.DelegateManager.RegisterMethodDelegate<Component>();
             mApp.DelegateManager.RegisterMethodDelegate<GameObject>();
             mApp.DelegateManager.RegisterMethodDelegate<Transform>();
+            mApp.DelegateManager.RegisterMethodDelegate<Scene>();
 
+            mApp.DelegateManager.RegisterMethodDelegate<Scene, Scene>();
+            mApp.DelegateManager.RegisterMethodDelegate<Scene, LoadSceneMode>();
             mApp.DelegateManager.RegisterMethodDelegate<string, byte[]>();
             mApp.DelegateManager.RegisterMethodDelegate<object, object>();
             mApp.DelegateManager.RegisterMethodDelegate<int, int>();

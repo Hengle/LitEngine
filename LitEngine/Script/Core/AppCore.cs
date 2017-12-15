@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using UnityEngine.SceneManagement;
 namespace LitEngine
 {
     #region base
@@ -40,7 +42,7 @@ namespace LitEngine
         public static UseScriptType sUseScriptType = UseScriptType.UseScriptType_LS;
         public static bool UseEncryptScript = false;
         private static AppCore sInstance = null;
-
+        private static bool IsChanging = false;
         private SafeMap<string, GameCore> mGameMap = new SafeMap<string, GameCore>();
         #endregion
         #region 方法
@@ -130,6 +132,11 @@ namespace LitEngine
         #region AppChange
         public static GameCore AppChangeFromMemory(string _nowapp, string _nextapp, byte[] _dllbytes, byte[] _pdbbytes, string _Class, string _startFun)
         {
+            if (IsChanging)
+            {
+                DLog.LogError("App is Changing.");
+                return null;
+            }
             if (!string.IsNullOrEmpty(_nowapp))
                 DestroyGameCore(_nowapp);
 
@@ -148,6 +155,11 @@ namespace LitEngine
 
         public static GameCore AppChangeFromFile(string _nowapp, string _nextapp, string _scriptFileName, string _Class, string _startFun)
         {
+            if (IsChanging)
+            {
+                DLog.LogError("App is Changing.");
+                return null;
+            }
             if (!string.IsNullOrEmpty(_nowapp))
                 DestroyGameCore(_nowapp);
 
@@ -166,6 +178,12 @@ namespace LitEngine
 
         public static GameCore AppChange(string _nowapp, string _nextapp, string _startscene)
         {
+            if (IsChanging)
+            {
+                DLog.LogError("App is Changing.");
+                return null;
+            }
+
             if (!string.IsNullOrEmpty(_nowapp))
                 DestroyGameCore(_nowapp);
 
@@ -175,6 +193,39 @@ namespace LitEngine
             UnityEngine.SceneManagement.SceneManager.LoadScene(tscenename);
             return ret;
         }
+
+        #region async change
+        public static void AppChangeAsync(string _nowapp, string _nextapp, string _startscene)
+        {
+            if (IsChanging)
+            {
+                DLog.LogError("App is Changing.");
+                return;
+            }
+            IsChanging = true;
+            if (!string.IsNullOrEmpty(_nowapp))
+                DestroyGameCore(_nowapp);
+            GameCore ret = CreatGameCore(_nextapp);
+            ret.LManager.LoadAssetAsync(_startscene, _startscene, LoadedStartScene);
+
+        }
+        private static string sNowLoadingScene = "";
+        private static void LoadedStartScene(string _key, object _object)
+        {
+            sNowLoadingScene = _key.Replace(".unity", "");
+            SceneManager.sceneLoaded += LoadSceneCall;
+            UnityEngine.AsyncOperation topert = SceneManager.LoadSceneAsync(sNowLoadingScene);
+
+        }
+        private static void LoadSceneCall(Scene _scene, LoadSceneMode _mode)
+        {
+            if (!_scene.name.Equals(sNowLoadingScene)) return;
+            SceneManager.sceneLoaded -= LoadSceneCall;
+            sNowLoadingScene = null;
+            IsChanging = false;
+        }
+        #endregion
+
 
         #endregion
         #endregion
