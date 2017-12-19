@@ -236,6 +236,13 @@ namespace LitEngine
                 }
             }
             #endregion
+            #region ObjectFun
+            virtual public void SetActive(bool _active)
+            {
+                if(gameObject.activeSelf != _active)
+                    gameObject.SetActive(_active);
+            }
+            #endregion
             #region Unity 
             virtual protected void Awake()
             {
