@@ -15,29 +15,7 @@ namespace LitEngine
         {
         }
     }
-    public class WaitNoTimeScallSecend
-    {
-        private float mStartTime;
-        private System.Action mDelgate;
-        private string mAppName;
-        public WaitNoTimeScallSecend(string _appname,float _secend, System.Action _call)
-        {
-            mStartTime = Time.realtimeSinceStartup + _secend;
-            mDelgate = _call;
-            mAppName = _appname;
-        }
-        public void Start()
-        {
-            AppCore.App[mAppName].CManager.StartCoroutine(WaitNoTimeScallSeconds());
-        }
-        protected IEnumerator WaitNoTimeScallSeconds()
-        {
-            while (mStartTime > Time.realtimeSinceStartup)
-                yield return null;
-            if(mDelgate != null)
-                mDelgate();
-        }
-    }
+
     public class ScriptTool
     {
         #region mathfun
@@ -261,105 +239,6 @@ namespace LitEngine
                 _mat.shader = tshader;
         }
 
-        #endregion
-
-        #region loadfun
-        static bool IsLoading = false;
-        static public void LoadSceneAsync(string _appname, string _scenename, System.Action _callback, LoadSceneMode _loadmode)
-        {
-            if (_callback == null)
-            {
-                DLog.LogError("回调不可为空");
-                return;
-            }
-            if (IsLoading == true) return;
-            IsLoading = true;
-            AppCore.App[_appname].CManager.StartCoroutine(Loading(_callback, _scenename, _loadmode));
-
-        }
-        static IEnumerator Loading(System.Action _callback, string _scenename, LoadSceneMode _loadmode)
-        {
-            AsyncOperation tasyncload = SceneManager.LoadSceneAsync(_scenename, _loadmode);
-            tasyncload.allowSceneActivation = true;
-            while (!tasyncload.isDone)
-                yield return new WaitForSeconds(0.1f);
-            Scene tscene = SceneManager.GetSceneByName(_scenename);
-            while (!tscene.isLoaded)
-                yield return new WaitForSeconds(0.1f);
-            if(_callback != null)
-                _callback();
-            IsLoading = false;
-
-        }
-
-        public static void WaitSecondCall(string _appname,System.Action _callback, float _sec)
-        {
-            AppCore.App[_appname].CManager.StartCoroutine(WaitSeconds(_callback, _sec));
-        }
-        public static IEnumerator WaitSeconds(System.Action _callback, float _sec)
-        {
-            yield return new WaitForSeconds(_sec);
-            if (_callback != null)
-                _callback();
-        }
-
-        public static void WaitNoTimeScallSecondCall(string _appname, System.Action _callback, float _sec)
-        {
-            WaitNoTimeScallSecend twait = new WaitNoTimeScallSecend(_appname,_sec, _callback);
-            twait.Start();
-        }
-
-        public static bool sIsUnloadingResouse = false;
-        public static void AsyncUnLoadResouse(string _appname, System.Action _callback)
-        {
-            if (sIsUnloadingResouse)
-                return;
-            sIsUnloadingResouse = true;
-            AppCore.App[_appname].CManager.StartCoroutine(WaitUnLoadResouse(_callback));
-        }
-
-        public static IEnumerator WaitUnLoadResouse(System.Action _callback)
-        {
-            AsyncOperation tasyncunload = Resources.UnloadUnusedAssets();
-            while (!tasyncunload.isDone)
-            {
-                yield return null;
-            }
-            GC.Collect();
-            if (_callback != null)
-                _callback();
-            sIsUnloadingResouse = false;
-        }
-        #endregion
-
-        #region 視頻
-        private static bool sIsLoadingMoveis = false;
-        public static void GetMoviesWWW(string _appname,string _filename, System.Action<WWW> _callback)
-        {
-            if (sIsLoadingMoveis)
-                return;
-            if (!_filename.Contains("file://"))
-                _filename = "file://" + _filename;
-            sIsLoadingMoveis = true;
-            AppCore.App[_appname].CManager.StartCoroutine(WaitLoadMoviesWWW(_filename, _callback));
-        }
-
-        public static IEnumerator WaitLoadMoviesWWW(string _filename, System.Action<WWW> _callback)
-        {
-            WWW tw = new WWW(_filename);
-            while (!tw.isDone)
-            {
-                yield return null;
-            }
-
-            while (!tw.movie.isReadyToPlay)
-            {
-                yield return null;
-            }
-            if (_callback != null)
-                _callback(tw);
-            sIsLoadingMoveis = false;
-        }
         #endregion
 
         public static void CloseShadowCaster(Transform _trans, bool _show, UnityEngine.Rendering.ShadowCastingMode _mode)

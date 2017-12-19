@@ -22,24 +22,17 @@ namespace LitEngine
         }
         static public string CombinePath(params object[] _params)
         {
+            System.Text.StringBuilder tformatbuilder = new System.Text.StringBuilder();
             for (int i = 0; i < _params.Length; i++)
             {
                 string tobjstr = _params[i].ToString();
                 if(i!=0)
                     tobjstr = RemoveStartWithString(tobjstr, "/");
                 tobjstr = RemoveEndWithString(tobjstr, "/");
-                _params[i] = tobjstr;
+                tformatbuilder.Append(tobjstr);
+                tformatbuilder.Append("/");
             }
-
-            System.Text.StringBuilder tformatbuilder = new System.Text.StringBuilder();
-            for (int i = 0; i < _params.Length; i++)
-            {
-                tformatbuilder.Append("{");
-                tformatbuilder.Append(i);
-                tformatbuilder.Append("}/");
-            }
-
-            return string.Format(tformatbuilder.ToString(), _params);
+            return tformatbuilder.ToString();
         }
 
         static public string RemoveEndWithString(string _source,string _des)
@@ -99,12 +92,6 @@ namespace LitEngine
             get;
             private set;
         }
-
-        public CoroutineManager CManager
-        {
-            get;
-            private set;
-        }
         #endregion
         #region 初始化
         protected GameCore()
@@ -129,12 +116,12 @@ namespace LitEngine
             GameObject.DontDestroyOnLoad(tobj);
             GManager = tobj.AddComponent<GameUpdateManager>();
 
-            tobj = new GameObject("CoroutineManager-" + AppName);
+            tobj = new GameObject("LoaderManager-" + AppName);
             GameObject.DontDestroyOnLoad(tobj);
-            CManager = tobj.AddComponent<CoroutineManager>();
+            LManager = tobj.AddComponent<LoaderManager>();
+            LManager.Init(AppName, AppPersistentResDataPath, AppStreamingAssetsResDataPath, AppResourcesDataPath);
 
             SManager = new ScriptManager(AppName,_scripttype);
-            LManager = new LoaderManager(AppName, AppPersistentResDataPath, AppStreamingAssetsResDataPath, AppResourcesDataPath, GManager);
 
             mIsInited = true;
         }
@@ -178,14 +165,12 @@ namespace LitEngine
             mDontDestroyList.Clear();
 
             GManager.DestroyManager();
-            CManager.DestroyManager();
-            LManager.Dispose();
+            LManager.DestroyManager();
             SManager.Dispose();
 
             GManager = null;
             LManager = null;
             SManager = null;
-            CManager = null;
         }
         #endregion
         #region 方法

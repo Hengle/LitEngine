@@ -38,18 +38,6 @@ namespace LitEngine
             #endregion
             #region Unity 
 
-            protected void OnDisable()
-            {
-                CallScriptFunctionByName("OnDisable");
-                UnRegAll();
-            }
-
-            protected void OnEnable()
-            {
-                CallScriptFunctionByName("OnEnable");
-                RegAll();
-            }
-
             protected void OnCollisionEnter(Collision _collision)
             {
                 if (mOnCollisionEnter == null) return;

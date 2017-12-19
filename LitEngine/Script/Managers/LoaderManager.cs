@@ -7,7 +7,7 @@ namespace LitEngine
     using UpdateSpace;
     namespace Loader
     {
-        public class LoaderManager : ManagerInterface
+        public class LoaderManager : MonoManagerBase
         {
             
             #region 属性
@@ -15,9 +15,8 @@ namespace LitEngine
             private BundleVector mBundleList = null;
             private LoadTaskVector mBundleTaskList = null;
             private WaitingList mWaitLoadBundleList = null;
-            private UpdateObject mUpdateAction = null;
-            private bool mIsRegToUpdate = false;
             public AssetBundleManifest Manifest { get; private set; }
+            private bool mInited = false;
             #region PATH_LOADER
             private  string mStreamingDataPath = null;
             private  string mResourcesPath = null;
@@ -42,42 +41,28 @@ namespace LitEngine
             #endregion
 
             #region 初始化,销毁,设置
-            public LoaderManager(string _appname,string _persistenpath,string _streamingpath,string _resources, GameUpdateManager _Updatemanager)
+            public void Init(string _appname, string _persistenpath, string _streamingpath, string _resources)
             {
+                if (mInited) return;
+                mInited = true;
                 mPersistentDataPath = _persistenpath;
                 mStreamingDataPath = _streamingpath;
                 mResourcesPath = string.Format("{0}{1}", _resources, GameCore.ResDataPath).Replace("//", "/");
                 SetAppName(_appname);
 
-                mUpdateAction = new UpdateObject(string.Format("{0}:LoaderManager->Update", _appname), Update);
-                mUpdateAction.Owner = _Updatemanager.UpdateList;
-                mUpdateAction.MaxTime = 0;
-                
                 mWaitLoadBundleList = new WaitingList();
                 mBundleList = new BundleVector();
                 mBundleTaskList = new LoadTaskVector();
             }
-
-            ~LoaderManager()
-            {
-                Dispose(true);//即使是gc释放的也需要释放掉加载的资源
-            }
             #region 释放
-            protected bool mDisposed = false;
-            public void Dispose()
+            override public void DestroyManager()
             {
-                Dispose(true);
-                System.GC.SuppressFinalize(this);
+                base.DestroyManager();
             }
-            protected void Dispose(bool _disposing)
+            override protected void OnDestroy()
             {
-                if (mDisposed)
-                    return;
-
-                if (_disposing)
-                    DisposeNoGcCode();
-
-                mDisposed = true;
+                DisposeNoGcCode();
+                base.OnDestroy();
             }
             protected void DisposeNoGcCode()
             {
@@ -98,8 +83,6 @@ namespace LitEngine
                     
                 mWaitLoadBundleList.Clear();
                 RemoveAllAsset();
-                mUpdateAction.Dispose();
-                mUpdateAction = null;
             }
             #endregion
 
@@ -119,18 +102,6 @@ namespace LitEngine
             #endregion
 
             #region update
-            private void RegUpdate()
-            {
-                if (mIsRegToUpdate) return;
-                mUpdateAction.RegToOwner();
-                mIsRegToUpdate = true;
-            }
-            private void UnRegUpdte()
-            {
-                if (!mIsRegToUpdate) return;
-                mUpdateAction.UnRegToOwner();
-                mIsRegToUpdate = false;
-            }
             void Update()
             {
                 if (mWaitLoadBundleList.Count > 0)
@@ -160,11 +131,8 @@ namespace LitEngine
             #region fun
             void ActiveLoader(bool _active)
             {
-                if (mIsRegToUpdate == _active) return;
-                if (_active)
-                    RegUpdate();
-                else
-                    UnRegUpdte();
+                if (gameObject.activeSelf == _active) return;
+                gameObject.SetActive(_active);
             }
             #endregion
 

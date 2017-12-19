@@ -59,6 +59,7 @@
     <Compile Include="Script\CodeTool\CodeTool_LS.cs" />
     <Compile Include="Script\CodeTool\CodeTool_SYS.cs" />
     <Compile Include="Script\CodeTool\ILRuntimePartialClass.cs" />
+    <Compile Include="Script\EngineInterface\UnityInterface\UIInterface.cs" />
     <Compile Include="Script\GoogleProto\ByteArray.cs" />
     <Compile Include="Script\GoogleProto\ByteString.cs" />
     <Compile Include="Script\GoogleProto\CodedInputStream.cs" />
@@ -362,7 +363,6 @@
     <Compile Include="Script\Loader\Bundle\WWWBundle.cs" />
     <Compile Include="Script\Loader\LoadderCreat.cs" />
     <Compile Include="Script\Managers\LoaderManager.cs" />
-    <Compile Include="Script\Managers\CoroutineManager.cs" />
     <Compile Include="Script\Loader\LoadTask.cs" />
     <Compile Include="Script\Net\HttpNet.cs" />
     <Compile Include="Script\Net\NetBase.cs" />
