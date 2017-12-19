@@ -32,7 +32,6 @@ namespace LitEngine
                     {
                         mEvents[0].time = 0;
                         mStartTime = AniClip.length;
-                        Speed *= -1;
                     }
                     else
                     {
@@ -48,7 +47,7 @@ namespace LitEngine
                 {
                     mAnimation.Stop();
                     AniClip.events = mEvents;
-                    mAnimation[AniClip.name].speed = Speed;
+                    mAnimation[AniClip.name].speed = isReverse ? Speed * -1: Speed;
                     mAnimation[AniClip.name].time = mStartTime;
                 }
 
