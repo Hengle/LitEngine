@@ -16,17 +16,14 @@ namespace LitEngine
         public bool mIsLateUpdate = true;
         public bool mIsGUIUpdate = true;
 
-        public UpdateObjectVector UpdateList { get; private set; }
-        public UpdateObjectVector FixedUpdateList { get; private set; }
-        public UpdateObjectVector LateUpdateList { get; private set; }
-        public UpdateObjectVector OnGUIList { get; private set; }
+        public readonly UpdateObjectVector UpdateList = new UpdateObjectVector(UpdateType.Update);
+        public readonly UpdateObjectVector FixedUpdateList = new UpdateObjectVector(UpdateType.FixedUpdate);
+        public readonly UpdateObjectVector LateUpdateList = new UpdateObjectVector(UpdateType.LateUpdate);
+        public readonly UpdateObjectVector OnGUIList = new UpdateObjectVector(UpdateType.OnGUI);
 
         public GameUpdateManager()
         {
-            UpdateList = new UpdateObjectVector(UpdateType.Update);
-            FixedUpdateList = new UpdateObjectVector(UpdateType.FixedUpdate);
-            LateUpdateList = new UpdateObjectVector(UpdateType.LateUpdate);
-            OnGUIList = new UpdateObjectVector(UpdateType.OnGUI);
+
         }
         #region 注册
         public void RegUpdate(UpdateBase _act)

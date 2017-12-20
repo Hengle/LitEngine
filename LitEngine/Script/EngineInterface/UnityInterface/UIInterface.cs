@@ -1,76 +1,149 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 namespace LitEngine
 {
     namespace ScriptInterface
     {
+        public enum UIAniType
+        {
+            None = 0,
+            Show,
+            Hide,
+            ScriptFun,
+        }
+        public class AnimatorGroup
+        {
+            public Animator animator;
+            public int Count { get; private set; }
+            private AnimatorGroup()
+            {
+
+            }
+            public AnimatorGroup(Animator _ator)
+            {
+                if(_ator == null)
+                    throw new System.NullReferenceException("AnimatorGroup,初始化参数不可为null.");
+                animator = _ator;
+                animator.enabled = false;
+            }
+            public void Retain()
+            {
+                Count++;
+                if (!animator.enabled)
+                    animator.enabled = true;
+            }
+            public void Release()
+            {
+                Count--;
+                if (Count <= 0)
+                {
+                    Count = 0;
+                    animator.enabled = false;
+                }
+                   
+            }
+
+            public void ReleaseLoop()
+            {
+                Count--;
+                if (Count <= 0)
+                    Count = 0;
+            }
+
+            public bool enabled
+            {
+                get { return animator.enabled;}
+            }
+        }
+        public class UIAnimator : MonoBehaviour
+        {
+            public UIAniType Type = UIAniType.None;
+            public string State;
+            public bool isReverse = false;
+            public string ScrintFun;
+            public bool IsPlaying { get; private set; }
+            protected AnimatorGroup mAnimator;
+            protected System.Action mEndCallback;
+            protected bool mPlayEnd = true;
+            protected bool mStoped = false;
+            
+            public float playbackTime
+            {
+                get
+                {
+                    AnimatorStateInfo state = mAnimator.animator.GetCurrentAnimatorStateInfo(0);
+                    return Mathf.Clamp01(state.normalizedTime);
+                }
+            }
+
+            public bool IsDone
+            {
+                get
+                {
+                    return playbackTime == 1f;
+                }
+            }
+            private void Awake()
+            {
+                
+            }
+            public void Init(AnimatorGroup _anigroup,System.Action _action)
+            {
+                if (string.IsNullOrEmpty(State)) return;
+                mAnimator = _anigroup;
+                mEndCallback = _action;
+            }
+
+            public bool Play()
+            {
+                if (IsPlaying) return true;
+                if ( mAnimator == null || mAnimator.animator == null) return false;
+                mPlayEnd = false;
+                SetEnable(true);
+                mAnimator.animator.Stop();
+                mAnimator.animator.Rebind();
+                mAnimator.animator.Play(State, 0);
+                IsPlaying = true;
+                return true;
+            }
+
+            public void Stop()
+            {
+                if (!IsPlaying) return;
+                mAnimator.animator.Stop();
+                IsPlaying = false;
+                SetEnable(false);
+                if (mEndCallback != null)
+                    mEndCallback();
+            }
+
+            public void SetEnable(bool _active)
+            {
+                if (mAnimator == null || mAnimator.animator == null) return;
+                if (enabled == _active) return;
+                enabled = _active;
+                if (_active)
+                    mAnimator.Retain();
+                else
+                    mAnimator.Release();
+            }
+
+            public bool Update()
+            {
+                if (mPlayEnd) return false;
+                
+                if (IsDone)
+                    Stop();
+
+                return true;
+            }
+
+        }
         public class UIInterface : BehaviourInterfaceBase
         {
-            [System.Serializable]
-            public class UIAnimation
-            {
-                public AnimationClip AniClip;
-                public bool isReverse = false;
-                public float Speed = 1;
-                [System.NonSerialized][HideInInspector]
-                protected Animation mAnimation;
-                protected AnimationEvent[] mEvents = new AnimationEvent[1];
-                protected float mStartTime = 0;
-
-                public void Init(Animation _ani,string _funname, UIInterface _ui)
-                {
-                    if (AniClip == null) return;
-                    AniClip.legacy = true;
-                    AniClip.wrapMode = WrapMode.Once;
-                    mAnimation = _ani;
-
-                    mEvents = new AnimationEvent[1];
-                    mEvents[0] = new AnimationEvent();
-                    mEvents[0].functionName = _funname;
-                    mEvents[0].objectReferenceParameter = _ui;
-                    
-                    if (isReverse)
-                    {
-                        mEvents[0].time = 0;
-                        mStartTime = AniClip.length;
-                    }
-                    else
-                    {
-                        mEvents[0].time = AniClip.length;
-                        mStartTime = 0;
-                    }
-
-                    if (mAnimation.GetClip(AniClip.name) == null)
-                        mAnimation.AddClip(AniClip, AniClip.name);
-                }
-
-                protected void ResetCurClip()
-                {
-                    mAnimation.Stop();
-                    AniClip.events = mEvents;
-                    mAnimation[AniClip.name].speed = isReverse ? Speed * -1: Speed;
-                    mAnimation[AniClip.name].time = mStartTime;
-                }
-
-                public void Play()
-                {
-                    if (mAnimation == null || AniClip == null) return;
-                    ResetCurClip();
-                    mAnimation.Play(AniClip.name);
-                }
-            }
-            public enum UIAniState
-            {
-                None = 0,
-                ShowAni,
-                HideAni,
-            }
-
-            [SerializeField]
-            public UIAnimation UIShowAni = new UIAnimation();
-            [SerializeField]
-            public UIAnimation UIHideAni = new UIAnimation();
-            protected UIAniState mState = UIAniState.None;
-            protected Animation animat;
+            protected Dictionary<UIAniType, UIAnimator> mAniMap;
+            protected AnimatorGroup mAniGroup;
+            protected UIAnimator mCurAni;
             #region 脚本初始化以及析构
             public UIInterface()
             {
@@ -92,15 +165,32 @@ namespace LitEngine
             {
                 base.Awake();
 
-                animat = gameObject.AddComponent<Animation>();
-                animat.playAutomatically = false;
-                animat.cullingType = AnimationCullingType.AlwaysAnimate;
-                animat.animatePhysics = false;
-                animat.wrapMode = WrapMode.Default;
-
-                UIHideAni.Init( animat, "HideAniCallBack", this);
-                UIShowAni.Init( animat, "ShowAniCallBack", this);
-
+                UIAnimator[] tanimators = GetComponents<UIAnimator>();
+                if(tanimators.Length > 0)
+                {
+                    mAniGroup = new AnimatorGroup(GetComponent<Animator>());
+                    mAniMap = new Dictionary<UIAniType, UIAnimator>();
+                    for(int i = 0;i< tanimators.Length; i++)
+                    {
+                        switch(tanimators[i].Type)
+                        {
+                            case UIAniType.Hide:
+                                tanimators[i].Init(mAniGroup, HideAniCallBack);
+                                break;
+                            case UIAniType.Show:
+                                tanimators[i].Init(mAniGroup, ShowAniCallBack);
+                                break;
+                            case UIAniType.ScriptFun:
+                                System.Action tback = null;
+                                if(mCodeTool != null)
+                                    tback = mCodeTool.GetCSLEDelegate<System.Action>(tanimators[i].ScrintFun, mScriptType, ScriptObject);                          
+                                tanimators[i].Init(mAniGroup, tback);
+                                break;
+                        }
+                        tanimators[i].enabled = false;
+                        mAniMap.Add(tanimators[i].Type, tanimators[i]);
+                    }
+                }
             }
             override protected void OnDisable()
             {
@@ -114,6 +204,7 @@ namespace LitEngine
 
             override protected void OnDestroy()
             {
+                mAniMap.Clear();
                 base.OnDestroy();
             }
             #endregion
@@ -128,21 +219,30 @@ namespace LitEngine
 
             }
             #region ani
+            protected bool PlayUIAni(UIAniType _type)
+            {
+                if (!mAniMap.ContainsKey(_type)) return false;
+                if (mCurAni != null) mCurAni.Stop();
+                mCurAni = mAniMap[_type];
+                return mCurAni.Play();
+            }
             override public void SetActive(bool _active)
             {
-                if (gameObject.activeSelf == _active) return;
-
+                if (gameObject.activeInHierarchy == _active) return;
                 if (_active)
                 {
                     base.SetActive(_active);
-                    UIShowAni.Play();
+                    PlayUIAni(UIAniType.Show);
                 }  
                 else
                 {
-                    if (UIHideAni.AniClip != null)
-                        UIHideAni.Play();
-                    else
+                    
+                    if (!PlayUIAni(UIAniType.Hide))
+                    {
                         base.SetActive(_active);
+                        HideAniCallBack();
+                    }
+                         
                 }              
             }
 
@@ -156,6 +256,7 @@ namespace LitEngine
                 CallScriptFunctionByName("HideAniCallBack");
                 gameObject.SetActive(false);
             }
+
             #endregion
             #endregion
         }
