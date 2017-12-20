@@ -212,7 +212,7 @@ namespace LitEngine
 
             public void PlaySound(AudioClip _audio)
             {
-
+                PlayAudioManager.Play(_audio);
             }
             public void PlaySoundByName(string _assets)
             {

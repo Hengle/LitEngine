@@ -44,6 +44,7 @@ namespace LitEngine
         private static AppCore sInstance = null;
         private static bool IsChanging = false;
         private SafeMap<string, GameCore> mGameMap = new SafeMap<string, GameCore>();
+        private SafeMap<string, MonoManagerBase> mPublicMonoMap = new SafeMap<string, MonoManagerBase>();
         #endregion
         #region 方法
         #region 属性
@@ -77,6 +78,10 @@ namespace LitEngine
                     sInstance = new AppCore();
                 return sInstance;
             }
+        }
+        public static void AddPublicMono(string _key, MonoManagerBase _mono)
+        {
+            App.mPublicMonoMap.Add(_key, _mono);
         }
         #endregion
 
@@ -273,6 +278,14 @@ namespace LitEngine
             foreach(string tkey in tlist)
             {
                 DestroyGame(tkey);
+            }
+
+            System.Collections.Generic.List<string> tpublicmonos = new System.Collections.Generic.List<string>(mPublicMonoMap.Keys);
+            foreach (string tkey in tlist)
+            {
+                MonoManagerBase tmono = mPublicMonoMap[tkey];
+                mPublicMonoMap.Remove(tkey);
+                tmono.DestroyManager();
             }
             base.DisposeNoGcCode();
         }

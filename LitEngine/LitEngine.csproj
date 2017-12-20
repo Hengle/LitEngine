@@ -68,6 +68,7 @@
     <Compile Include="Script\GoogleProto\InvalidProtocolBufferException.cs" />
     <Compile Include="Script\GoogleProto\ProtoPreconditions.cs" />
     <Compile Include="Script\GoogleProto\WireFormat.cs" />
+    <Compile Include="Script\Managers\PlayAudioManager.cs" />
     <Compile Include="Script\Managers\PublicUpdateManager.cs" />
     <Compile Include="Script\RootScript.cs" />
     <Compile Include="Script\SteamReaderAndWriter\AESReader.cs" />

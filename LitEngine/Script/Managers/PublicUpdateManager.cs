@@ -18,6 +18,7 @@ namespace LitEngine
                 UnityEngine.GameObject tobj = new UnityEngine.GameObject("PublicUpdateManager");
                 UnityEngine.GameObject.DontDestroyOnLoad(tobj);
                 sInstance = tobj.AddComponent<PublicUpdateManager>();
+                AppCore.AddPublicMono("PublicUpdateManager", sInstance);
                 tobj.SetActive(false);
             }
         }

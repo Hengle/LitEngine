@@ -145,6 +145,7 @@ namespace LitEngine
             if (IsSceneLoading)
                 DLog.LogError("异步加载场景未完成时,此时进行卸载GameCore操作,可能引起场景错乱.");
             //公用
+            PlayAudioManager.Clear();
             PublicUpdateManager.ClearByKey(AppName);
             NetTool.HttpNet.ClearByKey(AppName);
 
