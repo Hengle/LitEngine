@@ -9,70 +9,30 @@ namespace LitEngine
             None = 0,
             Show,
             Hide,
-            ScriptFun,
-        }
-        public class AnimatorGroup
-        {
-            public Animator animator;
-            public int Count { get; private set; }
-            private AnimatorGroup()
-            {
-
-            }
-            public AnimatorGroup(Animator _ator)
-            {
-                if(_ator == null)
-                    throw new System.NullReferenceException("AnimatorGroup,初始化参数不可为null.");
-                animator = _ator;
-                animator.enabled = false;
-            }
-            public void Retain()
-            {
-                Count++;
-                if (!animator.enabled)
-                    animator.enabled = true;
-            }
-            public void Release()
-            {
-                Count--;
-                if (Count <= 0)
-                {
-                    Count = 0;
-                    animator.enabled = false;
-                }
-                   
-            }
-
-            public void ReleaseLoop()
-            {
-                Count--;
-                if (Count <= 0)
-                    Count = 0;
-            }
-
-            public bool enabled
-            {
-                get { return animator.enabled;}
-            }
+            Normal,
         }
         public class UIAnimator : MonoBehaviour
         {
             public UIAniType Type = UIAniType.None;
             public string State;
-            public bool isReverse = false;
-            public string ScrintFun;
             public bool IsPlaying { get; private set; }
-            protected AnimatorGroup mAnimator;
+            protected Animator mAnimator;
             protected System.Action mEndCallback;
-            protected bool mPlayEnd = true;
-            protected bool mStoped = false;
-            
+           
+            public bool CanPlay { get; private set; }
             public float playbackTime
             {
                 get
                 {
-                    AnimatorStateInfo state = mAnimator.animator.GetCurrentAnimatorStateInfo(0);
-                    return Mathf.Clamp01(state.normalizedTime);
+                    return Mathf.Clamp01(mAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime);
+                }
+            }
+
+            public bool Loop
+            {
+                get
+                {
+                    return mAnimator.GetCurrentAnimatorStateInfo(0).loop;
                 }
             }
 
@@ -85,32 +45,45 @@ namespace LitEngine
             }
             private void Awake()
             {
-                
-            }
-            public void Init(AnimatorGroup _anigroup,System.Action _action)
-            {
                 if (string.IsNullOrEmpty(State)) return;
-                mAnimator = _anigroup;
-                mEndCallback = _action;
+                CanPlay = false;
+                mAnimator = GetComponent<Animator>();
+                if(mAnimator != null)
+                {
+                    if (mAnimator.enabled)
+                        mAnimator.enabled = false;
+
+                    int hashid = Animator.StringToHash(State);
+                    if (!mAnimator.HasState(0, hashid))
+                        mAnimator = null;
+                    else
+                        CanPlay = true;
+                }
+            }
+            public void Init(System.Action _action)
+            {
+                if (!CanPlay) return;
+                mEndCallback = _action;   
             }
 
             public bool Play()
             {
+                if (!CanPlay) return false;
                 if (IsPlaying) return true;
-                if ( mAnimator == null || mAnimator.animator == null) return false;
-                mPlayEnd = false;
-                SetEnable(true);
-                mAnimator.animator.Stop();
-                mAnimator.animator.Rebind();
-                mAnimator.animator.Play(State, 0);
+                mAnimator.enabled = false;
+                mAnimator.Stop();
+                mAnimator.Rebind();
+                mAnimator.Play(State, 0);
                 IsPlaying = true;
+                SetEnable(true);
                 return true;
             }
 
             public void Stop()
             {
+                if (!CanPlay) return;
                 if (!IsPlaying) return;
-                mAnimator.animator.Stop();
+                mAnimator.Stop();
                 IsPlaying = false;
                 SetEnable(false);
                 if (mEndCallback != null)
@@ -119,20 +92,20 @@ namespace LitEngine
 
             public void SetEnable(bool _active)
             {
-                if (mAnimator == null || mAnimator.animator == null) return;
                 if (enabled == _active) return;
                 enabled = _active;
-                if (_active)
-                    mAnimator.Retain();
-                else
-                    mAnimator.Release();
             }
 
             public bool Update()
             {
-                if (mPlayEnd) return false;
-                
-                if (IsDone)
+                if (!CanPlay)
+                {
+                    SetEnable(false);
+                    return false;
+                }
+                if (!IsPlaying) return false;
+                mAnimator.Update(Time.deltaTime);
+                if (IsDone && !Loop)
                     Stop();
 
                 return true;
@@ -141,8 +114,16 @@ namespace LitEngine
         }
         public class UIInterface : BehaviourInterfaceBase
         {
+            public enum UISate
+            {
+                Normal = 0,
+                ShowAni,
+                HideAni,
+                enabled,
+                disable,
+            }
+            protected UISate mState = UISate.Normal;
             protected Dictionary<UIAniType, UIAnimator> mAniMap;
-            protected AnimatorGroup mAniGroup;
             protected UIAnimator mCurAni;
             #region 脚本初始化以及析构
             public UIInterface()
@@ -168,23 +149,16 @@ namespace LitEngine
                 UIAnimator[] tanimators = GetComponents<UIAnimator>();
                 if(tanimators.Length > 0)
                 {
-                    mAniGroup = new AnimatorGroup(GetComponent<Animator>());
                     mAniMap = new Dictionary<UIAniType, UIAnimator>();
                     for(int i = 0;i< tanimators.Length; i++)
                     {
                         switch(tanimators[i].Type)
                         {
                             case UIAniType.Hide:
-                                tanimators[i].Init(mAniGroup, HideAniCallBack);
+                                tanimators[i].Init(HideAniCallBack);
                                 break;
                             case UIAniType.Show:
-                                tanimators[i].Init(mAniGroup, ShowAniCallBack);
-                                break;
-                            case UIAniType.ScriptFun:
-                                System.Action tback = null;
-                                if(mCodeTool != null)
-                                    tback = mCodeTool.GetCSLEDelegate<System.Action>(tanimators[i].ScrintFun, mScriptType, ScriptObject);                          
-                                tanimators[i].Init(mAniGroup, tback);
+                                tanimators[i].Init(ShowAniCallBack);
                                 break;
                         }
                         tanimators[i].enabled = false;
@@ -204,25 +178,30 @@ namespace LitEngine
 
             override protected void OnDestroy()
             {
+                mCurAni = null;
                 mAniMap.Clear();
                 base.OnDestroy();
             }
             #endregion
+            #region 调用脚本函数
+            override public object CallScriptFunctionByNameParams(string _FunctionName, params object[] _prams)
+            {
+                if (mState != UISate.Normal) return null;
+                return base.CallScriptFunctionByNameParams(_FunctionName, _prams);
+            }
+            #endregion
             #region Call
-
             public void PlaySound(AudioClip _audio)
             {
                 PlayAudioManager.Play(_audio);
-            }
-            public void PlaySoundByName(string _assets)
-            {
-
             }
             #region ani
             protected bool PlayUIAni(UIAniType _type)
             {
                 if (!mAniMap.ContainsKey(_type)) return false;
-                if (mCurAni != null) mCurAni.Stop();
+                if (mCurAni != null && mCurAni.Type == _type) return true;
+                if(mCurAni != null)
+                    mCurAni.Stop();
                 mCurAni = mAniMap[_type];
                 return mCurAni.Play();
             }
@@ -249,6 +228,7 @@ namespace LitEngine
             public void ShowAniCallBack()
             {
                 CallScriptFunctionByName("ShowAniCallBack");
+                PlayUIAni(UIAniType.Normal);
             }
 
             public void HideAniCallBack()
