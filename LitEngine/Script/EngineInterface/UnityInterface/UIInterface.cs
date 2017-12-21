@@ -62,7 +62,6 @@ namespace LitEngine
             }
             public void Init(System.Action _action)
             {
-                if (!CanPlay) return;
                 mEndCallback = _action;   
             }
 
@@ -74,18 +73,20 @@ namespace LitEngine
                 mAnimator.Stop();
                 mAnimator.Rebind();
                 mAnimator.Play(State, 0);
-                IsPlaying = true;
                 SetEnable(true);
                 return true;
             }
 
             public void Stop()
             {
-                if (!CanPlay) return;
-                if (!IsPlaying) return;
+                if (!CanPlay) return;         
                 mAnimator.Stop();
-                IsPlaying = false;
                 SetEnable(false);
+            }
+
+            public void GoToEnd()
+            {
+                Stop();
                 if (mEndCallback != null)
                     mEndCallback();
             }
@@ -93,6 +94,7 @@ namespace LitEngine
             public void SetEnable(bool _active)
             {
                 if (enabled == _active) return;
+                IsPlaying = _active;
                 enabled = _active;
             }
 
@@ -106,8 +108,7 @@ namespace LitEngine
                 if (!IsPlaying) return false;
                 mAnimator.Update(Time.deltaTime);
                 if (IsDone && !Loop)
-                    Stop();
-
+                    GoToEnd();
                 return true;
             }
 
@@ -152,7 +153,7 @@ namespace LitEngine
                     mAniMap = new Dictionary<UIAniType, UIAnimator>();
                     for(int i = 0;i< tanimators.Length; i++)
                     {
-                        switch(tanimators[i].Type)
+                        switch (tanimators[i].Type)
                         {
                             case UIAniType.Hide:
                                 tanimators[i].Init(HideAniCallBack);
@@ -199,7 +200,7 @@ namespace LitEngine
             protected bool PlayUIAni(UIAniType _type)
             {
                 if (!mAniMap.ContainsKey(_type)) return false;
-                if (mCurAni != null && mCurAni.Type == _type) return true;
+                if (mCurAni != null && mCurAni.Type == _type && mCurAni.IsPlaying) return true;
                 if(mCurAni != null)
                     mCurAni.Stop();
                 mCurAni = mAniMap[_type];
@@ -207,7 +208,6 @@ namespace LitEngine
             }
             override public void SetActive(bool _active)
             {
-                if (gameObject.activeInHierarchy == _active) return;
                 if (_active)
                 {
                     base.SetActive(_active);
