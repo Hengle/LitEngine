@@ -118,10 +118,8 @@ namespace LitEngine
             public enum UISate
             {
                 Normal = 0,
-                ShowAni,
-                HideAni,
-                enabled,
-                disable,
+                Showing,
+                Hidden,
             }
             protected UISate mState = UISate.Normal;
             protected Dictionary<UIAniType, UIAnimator> mAniMap;
@@ -160,6 +158,9 @@ namespace LitEngine
                                 break;
                             case UIAniType.Show:
                                 tanimators[i].Init(ShowAniCallBack);
+                                break;
+                            case UIAniType.Normal:
+                                tanimators[i].Init(NormalAniCallBack);
                                 break;
                         }
                         tanimators[i].enabled = false;
@@ -211,11 +212,15 @@ namespace LitEngine
                 if (_active)
                 {
                     base.SetActive(_active);
-                    PlayUIAni(UIAniType.Show);
+                    mState = UISate.Showing;
+                    if (!PlayUIAni(UIAniType.Show))
+                    {
+                        ShowAniCallBack();
+                    }
                 }  
                 else
                 {
-                    
+                    mState = UISate.Hidden;
                     if (!PlayUIAni(UIAniType.Hide))
                     {
                         base.SetActive(_active);
@@ -229,12 +234,19 @@ namespace LitEngine
             {
                 CallScriptFunctionByName("ShowAniCallBack");
                 PlayUIAni(UIAniType.Normal);
+                mState = UISate.Normal;
             }
 
             public void HideAniCallBack()
             {
                 CallScriptFunctionByName("HideAniCallBack");
                 gameObject.SetActive(false);
+                mState = UISate.Normal;
+            }
+
+            public void NormalAniCallBack()
+            {
+
             }
 
             #endregion
