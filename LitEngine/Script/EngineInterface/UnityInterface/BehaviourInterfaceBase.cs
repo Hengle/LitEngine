@@ -239,6 +239,7 @@ namespace LitEngine
             #region ObjectFun
             virtual public void SetActive(bool _active)
             {
+                if (gameObject.activeInHierarchy == _active) return;
                 gameObject.SetActive(_active);
             }
             #endregion

@@ -18,28 +18,20 @@ namespace LitEngine
             public bool IsPlaying { get; private set; }
             protected Animator mAnimator;
             protected System.Action mEndCallback;
-           
+            protected AnimatorClipInfo[] mClips = null;
+
             public bool CanPlay { get; private set; }
-            public float playbackTime
-            {
-                get
-                {
-                    return Mathf.Clamp01(mAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime);
-                }
-            }
 
-            public bool Loop
+            protected bool IsDone
             {
                 get
                 {
-                    return mAnimator.GetCurrentAnimatorStateInfo(0).loop;
-                }
-            }
-
-            public bool IsDone
-            {
-                get
-                {
+                    if(mClips == null)
+                    {
+                        mClips = mAnimator.GetCurrentAnimatorClipInfo(0);
+                    }
+                    if (mClips.Length == 0) return true;
+                    
                     AnimatorStateInfo tstate =  mAnimator.GetCurrentAnimatorStateInfo(0);
                     float ttime = Mathf.Clamp01(tstate.normalizedTime);
                     return !tstate.loop && ttime == 1f;
@@ -74,7 +66,7 @@ namespace LitEngine
                 mAnimator.enabled = false;
                 mAnimator.Stop();
                 mAnimator.Rebind();
-                mAnimator.Play(State, 0);
+                mAnimator.Play(State, 0);             
                 SetEnable(true);
                 return true;
             }
@@ -93,14 +85,14 @@ namespace LitEngine
                     mEndCallback();
             }
 
-            public void SetEnable(bool _active)
+            protected void SetEnable(bool _active)
             {
                 if (enabled == _active) return;
                 IsPlaying = _active;
                 enabled = _active;
             }
 
-            public bool Update()
+            protected bool LateUpdate()
             {
                 if (!CanPlay)
                 {
@@ -108,6 +100,7 @@ namespace LitEngine
                     return false;
                 }
                 if (!IsPlaying) return false;
+                
                 mAnimator.Update(Time.deltaTime);
                 if (IsDone)
                     GoToEnd();
@@ -146,12 +139,20 @@ namespace LitEngine
             protected override void Awake()
             {
                 base.Awake();
+                Animator tanitor = GetComponent<Animator>();
+                if (tanitor != null)
+                {
+                    tanitor.Stop();
+                    tanitor.Rebind();
+                    tanitor.enabled = false;
+
+                }
 
                 UIAnimator[] tanimators = GetComponents<UIAnimator>();
-                if(tanimators.Length > 0)
+                if (tanimators.Length > 0)
                 {
                     mAniMap = new Dictionary<UIAniType, UIAnimator>();
-                    for(int i = 0;i< tanimators.Length; i++)
+                    for (int i = 0; i < tanimators.Length; i++)
                     {
                         switch (tanimators[i].Type)
                         {
@@ -203,7 +204,9 @@ namespace LitEngine
             #region ani
             protected bool PlayUIAni(UIAniType _type)
             {
+                if (mAniMap == null) return false;
                 if (!mAniMap.ContainsKey(_type)) return false;
+                if (!mAniMap[_type].CanPlay) return false;
                 if (mCurAni != null && mCurAni.Type == _type && mCurAni.IsPlaying) return true;
                 if(mCurAni != null)
                     mCurAni.Stop();
@@ -214,7 +217,7 @@ namespace LitEngine
             {
                 if (_active)
                 {
-                    base.SetActive(_active);
+                    base.SetActive(true);
                     mState = UISate.Showing;
                     if (!PlayUIAni(UIAniType.Show))
                     {
@@ -223,10 +226,12 @@ namespace LitEngine
                 }  
                 else
                 {
+                    if (!gameObject.activeInHierarchy) return;
+
                     mState = UISate.Hidden;
                     if (!PlayUIAni(UIAniType.Hide))
                     {
-                        base.SetActive(_active);
+                        base.SetActive(false);
                         OnHideAnimationEnd();
                     }
                          
@@ -235,21 +240,21 @@ namespace LitEngine
 
             protected void OnShowAnimationEnd()
             {
-                CallScriptFunctionByName("OnShowAnimationEnd");
                 PlayUIAni(UIAniType.Normal);
                 mState = UISate.Normal;
+                CallScriptFunctionByNameParams("OnShowAnimationEnd");
             }
 
             protected void OnHideAnimationEnd()
             {
-                CallScriptFunctionByName("OnHideAnimationEnd");
-                gameObject.SetActive(false);
                 mState = UISate.Normal;
+                CallScriptFunctionByNameParams("OnHideAnimationEnd");
+                base.SetActive(false);
             }
 
             protected void OnNormalAnimationEnd()
             {
-                CallScriptFunctionByName("OnNormalAnimationEnd");
+                CallScriptFunctionByNameParams("OnNormalAnimationEnd");
             }
 
             #endregion
