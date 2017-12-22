@@ -61,6 +61,13 @@ public class CreatCLRBindingFile
         _types.Add(typeof(UnityEngine.SceneManagement.Scene));
         _types.Add(typeof(UnityEngine.SceneManagement.SceneManager));
 
+        _types.Add(typeof(LitEngine.ScriptInterface.UIInterface));
+        _types.Add(typeof(LitEngine.ScriptInterface.BehaviourInterfaceBase));
+        _types.Add(typeof(LitEngine.ScriptInterface.ScriptInterfaceApplication));
+        _types.Add(typeof(LitEngine.ScriptInterface.ScriptInterfaceMouse));
+        _types.Add(typeof(LitEngine.ScriptInterface.ScriptInterfaceTrigger));
+        _types.Add(typeof(LitEngine.ScriptInterface.ScriptInterfaceCollision));
+
         _types.Add(typeof(AppCore));
         _types.Add(typeof(GameCore));
 
