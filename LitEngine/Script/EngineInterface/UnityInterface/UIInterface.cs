@@ -127,7 +127,7 @@ namespace LitEngine
             #region 脚本初始化以及析构
             public UIInterface()
             {
-
+                
             }
 
             override protected void InitParamList()
@@ -246,7 +246,7 @@ namespace LitEngine
 
             public void NormalAniCallBack()
             {
-
+                CallScriptFunctionByName("NormalAniCallBack");
             }
 
             #endregion

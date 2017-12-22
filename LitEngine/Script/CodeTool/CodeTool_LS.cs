@@ -3,6 +3,7 @@ using ILRuntime.CLR.TypeSystem;
 using ILRuntime.Runtime.Intepreter;
 using ILRuntime.CLR.Method;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 namespace LitEngine
 {
@@ -64,8 +65,88 @@ namespace LitEngine
             mApp.DelegateManager.RegisterMethodDelegate<string, object, object>();
             mApp.DelegateManager.RegisterMethodDelegate<object, object, object>();
 
+            RegDelegateConvertor();
+
             if (RegisterDelegate != null)
                 RegisterDelegate(mApp);
+            
+        }
+        protected void RegDelegateConvertor()
+        {
+            mApp.DelegateManager.RegisterDelegateConvertor<UnityEngine.Events.UnityAction>((act) =>
+            {
+                return new UnityEngine.Events.UnityAction(() =>
+                {
+                    ((Action)act)();
+                });
+            });
+
+            mApp.DelegateManager.RegisterDelegateConvertor<UnityEngine.Events.UnityAction<int>>((act) =>
+            {
+                return new UnityEngine.Events.UnityAction<int>((arg0) =>
+                {
+                    ((Action<int>)act)(arg0);
+                });
+            });
+
+            mApp.DelegateManager.RegisterDelegateConvertor<UnityEngine.Events.UnityAction<float>>((act) =>
+            {
+                return new UnityEngine.Events.UnityAction<float>((arg0) =>
+                {
+                    ((Action<float>)act)(arg0);
+                });
+            });
+
+            mApp.DelegateManager.RegisterDelegateConvertor<UnityEngine.Events.UnityAction<string>>((act) =>
+            {
+                return new UnityEngine.Events.UnityAction<string>((arg0) =>
+                {
+                    ((Action<string>)act)(arg0);
+                });
+            });
+
+            mApp.DelegateManager.RegisterDelegateConvertor<UnityEngine.Events.UnityAction<UnityEngine.Object>>((act) =>
+            {
+                return new UnityEngine.Events.UnityAction<UnityEngine.Object>((arg0) =>
+                {
+                    ((Action<UnityEngine.Object>)act)(arg0);
+                });
+            });
+
+            mApp.DelegateManager.RegisterDelegateConvertor<UnityEngine.Events.UnityAction<object>>((act) =>
+            {
+                return new UnityEngine.Events.UnityAction<object>((arg0) =>
+                {
+                    ((Action<object>)act)(arg0);
+                });
+            });
+
+            #region 多参
+            mApp.DelegateManager.RegisterDelegateConvertor<UnityEngine.Events.UnityAction<object, object>>((act) =>
+            {
+                return new UnityEngine.Events.UnityAction<object, object>((arg0, arg1) =>
+                {
+                    ((Action<object, object>)act)(arg0, arg1);
+                });
+            });
+
+            mApp.DelegateManager.RegisterDelegateConvertor<UnityEngine.Events.UnityAction<object, object, object>>((act) =>
+            {
+                return new UnityEngine.Events.UnityAction<object, object, object>((arg0, arg1, arg2) =>
+                {
+                    ((Action<object, object, object>)act)(arg0, arg1, arg2);
+                });
+            });
+
+            mApp.DelegateManager.RegisterDelegateConvertor<UnityEngine.Events.UnityAction<object, object, object, object>>((act) =>
+            {
+                return new UnityEngine.Events.UnityAction<object, object, object, object>((arg0, arg1, arg2, arg3) =>
+                {
+                    ((Action<object, object, object, object>)act)(arg0, arg1, arg2, arg3);
+                });
+            });
+            #endregion
+
         }
         override protected void DisposeNoGcCode()
         {
