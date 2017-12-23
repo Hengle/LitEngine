@@ -19,6 +19,8 @@ namespace LitEngine
             protected Animator mAnimator;
             protected System.Action mEndCallback;
             protected AnimatorClipInfo[] mClips = null;
+            protected AnimatorStateInfo mState;
+            protected bool mRestDate = true;
 
             public bool CanPlay { get; private set; }
 
@@ -26,15 +28,16 @@ namespace LitEngine
             {
                 get
                 {
-                    if(mClips == null)
+                    if(mRestDate)
                     {
                         mClips = mAnimator.GetCurrentAnimatorClipInfo(0);
+                        mState = mAnimator.GetCurrentAnimatorStateInfo(0);
+                        mRestDate = false;
                     }
-                    if (mClips.Length == 0) return true;
+                    if (mClips == null || mClips.Length == 0) return true;
                     
-                    AnimatorStateInfo tstate =  mAnimator.GetCurrentAnimatorStateInfo(0);
-                    float ttime = Mathf.Clamp01(tstate.normalizedTime);
-                    return !tstate.loop && ttime == 1f;
+                    float ttime = Mathf.Clamp01(mState.normalizedTime);
+                    return !mState.loop && ttime == 1f;
                 }
             }
             private void Awake()
@@ -66,7 +69,8 @@ namespace LitEngine
                 mAnimator.enabled = false;
                 mAnimator.Stop();
                 mAnimator.Rebind();
-                mAnimator.Play(State, 0);             
+                mAnimator.Play(State, 0);
+                mRestDate = true;
                 SetEnable(true);
                 return true;
             }
