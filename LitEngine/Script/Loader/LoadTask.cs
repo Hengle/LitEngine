@@ -40,6 +40,8 @@
                 {
                     return false;
                 }
+
+                DestoryTaskFormParent();
                 if (mCallBack != null)
                 {
                     if(mRetain)
@@ -47,7 +49,6 @@
                     mCallBack(TaskKey, mBundle.Asset);
 
                 }
-                DestoryTaskFormParent();
                 return true;
 
             }
