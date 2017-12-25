@@ -4,114 +4,7 @@ namespace LitEngine
 {
     namespace ScriptInterface
     {
-        public enum UIAniType
-        {
-            None = 0,
-            Show,
-            Hide,
-            Normal,
-        }
-        public class UIAnimator : MonoBehaviour
-        {
-            public UIAniType Type = UIAniType.None;
-            public string State;
-            public bool IsPlaying { get; private set; }
-            protected Animator mAnimator;
-            protected System.Action mEndCallback;
-            protected AnimatorClipInfo[] mClips = null;
-            protected AnimatorStateInfo mState;
-            protected bool mRestDate = true;
-
-            public bool CanPlay { get; private set; }
-
-            protected bool IsDone
-            {
-                get
-                {
-                    if(mRestDate)
-                    {
-                        mClips = mAnimator.GetCurrentAnimatorClipInfo(0);
-                        mState = mAnimator.GetCurrentAnimatorStateInfo(0);
-                        mRestDate = false;
-                    }
-                    if (mClips == null || mClips.Length == 0) return true;
-                    
-                    float ttime = Mathf.Clamp01(mState.normalizedTime);
-                    return !mState.loop && ttime == 1f;
-                }
-            }
-            private void Awake()
-            {
-                if (string.IsNullOrEmpty(State)) return;
-                CanPlay = false;
-                mAnimator = GetComponent<Animator>();
-                if(mAnimator != null)
-                {
-                    if (mAnimator.enabled)
-                        mAnimator.enabled = false;
-
-                    int hashid = Animator.StringToHash(State);
-                    if (!mAnimator.HasState(0, hashid))
-                        mAnimator = null;
-                    else
-                        CanPlay = true;
-                }
-            }
-            public void Init(System.Action _action)
-            {
-                mEndCallback = _action;   
-            }
-
-            public bool Play()
-            {
-                if (!CanPlay) return false;
-                if (IsPlaying) return true;
-                mAnimator.enabled = false;
-                mAnimator.Stop();
-                mAnimator.Rebind();
-                mAnimator.Play(State, 0);
-                mRestDate = true;
-                SetEnable(true);
-                return true;
-            }
-
-            public void Stop()
-            {
-                if (!CanPlay) return;         
-                mAnimator.Stop();
-                SetEnable(false);
-            }
-
-            public void GoToEnd()
-            {
-                Stop();
-                if (mEndCallback != null)
-                    mEndCallback();
-            }
-
-            protected void SetEnable(bool _active)
-            {
-                if (enabled == _active) return;
-                IsPlaying = _active;
-                enabled = _active;
-            }
-
-            protected bool LateUpdate()
-            {
-                if (!CanPlay)
-                {
-                    SetEnable(false);
-                    return false;
-                }
-                if (!IsPlaying) return false;
-                
-                mAnimator.Update(Time.deltaTime);
-                if (IsDone)
-                    GoToEnd();
-                return true;
-            }
-
-        }
+        
         public class UIInterface : BehaviourInterfaceBase
         {
             public enum UISate
@@ -169,6 +62,9 @@ namespace LitEngine
                             case UIAniType.Normal:
                                 tanimators[i].Init(OnNormalAnimationEnd);
                                 break;
+                            case UIAniType.Custom:
+                                tanimators[i].Init(OnCustomAnimationEnd);
+                                break;
                         }
                         tanimators[i].enabled = false;
                         mAniMap.Add(tanimators[i].Type, tanimators[i]);
@@ -201,11 +97,18 @@ namespace LitEngine
             }
             #endregion
             #region Call
-            public void PlaySound(AudioClip _audio)
-            {
-                PlayAudioManager.Play(_audio);
-            }
+
             #region ani
+            override public void PlayAnimation(string _state)
+            {
+                if (mAniMap == null) return;
+                if (!mAniMap.ContainsKey(UIAniType.Custom)) return;
+                if (mCurAni != null)
+                    mCurAni.Stop();
+                mCurAni = mAniMap[UIAniType.Custom];
+                mCurAni.Play(_state);
+            }
+
             protected bool PlayUIAni(UIAniType _type)
             {
                 if (mAniMap == null) return false;
@@ -259,6 +162,11 @@ namespace LitEngine
             protected void OnNormalAnimationEnd()
             {
                 CallScriptFunctionByNameParams("OnNormalAnimationEnd");
+            }
+
+            protected void OnCustomAnimationEnd()
+            {
+                CallScriptFunctionByNameParams("OnCustomAnimationEnd");
             }
 
             #endregion

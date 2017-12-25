@@ -59,6 +59,7 @@
     <Compile Include="Script\CodeTool\CodeTool_LS.cs" />
     <Compile Include="Script\CodeTool\CodeTool_SYS.cs" />
     <Compile Include="Script\CodeTool\ILRuntimePartialClass.cs" />
+    <Compile Include="Script\EngineInterface\UnityInterface\UIAnimation.cs" />
     <Compile Include="Script\EngineInterface\UnityInterface\UIInterface.cs" />
     <Compile Include="Script\GoogleProto\ByteArray.cs" />
     <Compile Include="Script\GoogleProto\ByteString.cs" />

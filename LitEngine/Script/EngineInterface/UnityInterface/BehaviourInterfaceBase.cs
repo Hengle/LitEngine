@@ -242,6 +242,14 @@ namespace LitEngine
                 if (gameObject.activeInHierarchy == _active) return;
                 gameObject.SetActive(_active);
             }
+            virtual public void PlaySound(AudioClip _audio)
+            {
+                PlayAudioManager.Play(_audio);
+            }
+            virtual public void PlayAnimation(string _state)
+            {
+
+            }
             #endregion
             #region Unity 
             virtual protected void Awake()
