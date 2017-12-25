@@ -155,8 +155,8 @@ namespace LitEngine
             protected void OnHideAnimationEnd()
             {
                 mState = UISate.Normal;
-                CallScriptFunctionByNameParams("OnHideAnimationEnd");
                 base.SetActive(false);
+                CallScriptFunctionByNameParams("OnHideAnimationEnd");
             }
 
             protected void OnNormalAnimationEnd()
