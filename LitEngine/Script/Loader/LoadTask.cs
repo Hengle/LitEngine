@@ -40,15 +40,17 @@
                 {
                     return false;
                 }
-
-                DestoryTaskFormParent();
                 if (mCallBack != null)
                 {
                     if(mRetain)
                         mBundle.Retain();
-                    mCallBack(TaskKey, mBundle.Asset);
-
+                    try {
+                        mCallBack(TaskKey, mBundle.Asset);
+                    } catch (System.Exception _error) {
+                        DLog.LogError(_error);
+                    }
                 }
+                DestoryTaskFormParent();
                 return true;
 
             }

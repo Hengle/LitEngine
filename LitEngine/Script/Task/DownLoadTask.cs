@@ -115,8 +115,15 @@ namespace LitEngine
                         mProgress((int)mObject.DownLoadedLength,(int)mObject.ContentLength, mObject.Progress);
                     if (!mObject.IsDone) return false;
                     mIsDone = true;
-                    if (mFinished != null)
-                        mFinished(mObject.CompleteFile, mObject.Error);
+                    try {
+                        if (mFinished != null)
+                            mFinished(mObject.CompleteFile, mObject.Error);
+                    }
+                    catch (System.Exception _error)
+                    {
+                        DLog.LogError(_error);
+                    }
+                    
                     return true;
                 }
             }

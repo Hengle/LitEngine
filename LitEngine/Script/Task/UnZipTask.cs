@@ -112,8 +112,15 @@ namespace LitEngine
                         mProgress(mUnZipObject.progress);
                     if (!mUnZipObject.IsDone) return false;
                     mIsDone = true;
-                    if (mFinished != null)
-                        mFinished(mUnZipObject.Error);
+                    try
+                    {
+                        if (mFinished != null)
+                            mFinished(mUnZipObject.Error);
+                    }
+                    catch (System.Exception _error)
+                    {
+                        DLog.LogError(_error);
+                    }
                     return true;
                 }
             }
