@@ -205,8 +205,8 @@ namespace LitEngine
                 }
 
                 ResourcesBundle tbundle = new ResourcesBundle(_AssetsName);
+                AddCache(tbundle);
                 tbundle.Load(this);
-                mBundleList.Add(tbundle);
                 return (Object)tbundle.Retain();
             }
             #endregion
@@ -223,8 +223,8 @@ namespace LitEngine
                 if (!mBundleList.Contains(_AssetsName))
                 {
                     AssetsBundleHaveDependencie tbundle = new AssetsBundleHaveDependencie(_AssetsName, LoadAssetRetain);
-                    tbundle.Load(this);
                     AddCache(tbundle);
+                    tbundle.Load(this); 
                 }
                 return mBundleList[_AssetsName];
             }
@@ -233,9 +233,9 @@ namespace LitEngine
 
             protected void LoadBundleAsync(BaseBundle _bundle,string _key, System.Action<string, object> _callback,bool _retain)
             {
+                AddCache(_bundle);
                 _bundle.Load(this);
                 AddmWaitLoadList(_bundle);
-                AddCache(_bundle);
                 CreatTaskAndStart(_key, _bundle, _callback, _retain);
                 ActiveLoader(true);
             }
