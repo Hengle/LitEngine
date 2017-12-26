@@ -199,6 +199,7 @@ namespace LitEngine
             public Object LoadResources(string _AssetsName)
             {
                 if (_AssetsName == null || _AssetsName.Equals("")) return null;
+                _AssetsName = BaseBundle.DeleteSuffixName(_AssetsName).ToLower();
                 if (mBundleList.Contains(_AssetsName))
                 {
                     return (Object)mBundleList[_AssetsName].Retain();
@@ -219,7 +220,7 @@ namespace LitEngine
             private BaseBundle LoadAssetRetain(string _AssetsName)
             {
                 if (_AssetsName == null || _AssetsName.Equals("")) return null;
-
+                _AssetsName = BaseBundle.DeleteSuffixName(_AssetsName).ToLower();
                 if (!mBundleList.Contains(_AssetsName))
                 {
                     AssetsBundleHaveDependencie tbundle = new AssetsBundleHaveDependencie(_AssetsName, LoadAssetRetain);
@@ -251,7 +252,7 @@ namespace LitEngine
                     DLog.LogError("LoadResourcesBundleByRelativePathNameAsync -- CallBack Fun can not be null");
                     return;
                 }
-
+                _AssetsName = BaseBundle.DeleteSuffixName(_AssetsName).ToLower();
                 if (mBundleList.Contains(_AssetsName))
                 {
                     if (mBundleList[_AssetsName].Loaded)
@@ -282,6 +283,7 @@ namespace LitEngine
 
             private BaseBundle LoadAssetAsyncRetain(string _key, string _AssetsName, System.Action<string, object> _callback, bool _retain )
             {
+               
                 if (_AssetsName.Length == 0)
                 {
                     DLog.LogError( "LoadAssetsBundleByFullNameAsync -- _AssetsName 的长度不能为空");
@@ -291,8 +293,7 @@ namespace LitEngine
                     DLog.LogError( "LoadAssetsBundleByFullNameAsync -- CallBack Fun can not be null");
                     return null;
                 }
-                _AssetsName = BaseBundle.DeleteSuffixName(_AssetsName);
-
+                _AssetsName = BaseBundle.DeleteSuffixName(_AssetsName).ToLower();
                 if (mBundleList.Contains(_AssetsName))
                 {
                     if (mBundleList[_AssetsName].Loaded)

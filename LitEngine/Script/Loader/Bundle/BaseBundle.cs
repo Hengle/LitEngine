@@ -24,7 +24,7 @@ namespace LitEngine
 
             public BaseBundle(string _assetname)
             {
-                mAssetName = DeleteSuffixName(_assetname);
+                mAssetName = DeleteSuffixName(_assetname).ToLower();
             }
             #region 静态方法
             public static string CombineSuffixName(string _assetsname)

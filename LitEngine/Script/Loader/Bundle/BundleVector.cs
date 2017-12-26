@@ -74,6 +74,7 @@ namespace LitEngine
 
             public void Remove(string _key, bool _destory = true)
             {
+                _key = BaseBundle.DeleteSuffixName(_key).ToLower();
                 if (!Contains(_key))
                     return;
                 BaseBundle tbundle = this[_key];
@@ -95,6 +96,7 @@ namespace LitEngine
 
             public void ReleaseBundle(string _key)
             {
+                _key = BaseBundle.DeleteSuffixName(_key).ToLower();
                 if (Contains(_key))
                     this[_key].Release();
                 else
