@@ -17,11 +17,11 @@ namespace LitEngine
             {
                 get
                 {
-                    return mList[BaseBundle.DeleteSuffixName(key)];
+                    return mList[BaseBundle.DeleteSuffixName(key).ToLower()];
                 }
                 set
                 {
-                    mList[BaseBundle.DeleteSuffixName(key)] = value;
+                    mList[BaseBundle.DeleteSuffixName(key).ToLower()] = value;
                 }
             }
 
@@ -52,7 +52,7 @@ namespace LitEngine
 
             public bool Contains(string _key)
             {
-                return mList.ContainsKey(BaseBundle.DeleteSuffixName(_key));
+                return mList.ContainsKey(BaseBundle.DeleteSuffixName(_key).ToLower());
             }
 
             public void Add(BaseBundle _bundle)
