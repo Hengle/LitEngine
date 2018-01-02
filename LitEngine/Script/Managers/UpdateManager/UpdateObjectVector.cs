@@ -27,8 +27,7 @@ namespace LitEngine
             {
                 if (_obj == null || mList.Contains(_obj))
                     return;
-                if(!_obj.Owner.Equals(this))
-                    _obj.Owner = this;
+                _obj.Owner = this;
                 mList.Add(_obj);
             }
 

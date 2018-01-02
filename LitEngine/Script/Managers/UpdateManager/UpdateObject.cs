@@ -41,7 +41,7 @@ namespace LitEngine
 
             public UpdateBase(string _key, Action _delegate)
             {
-                Key = _key;
+                Key = _key != null ? _key:"";
                 mZeroDelegate = _delegate;
                 IsRegToOwner = false;
             }
