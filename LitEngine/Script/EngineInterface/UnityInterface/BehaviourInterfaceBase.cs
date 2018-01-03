@@ -244,7 +244,8 @@ namespace LitEngine
             }
             virtual public void PlaySound(AudioClip _audio)
             {
-                PlayAudioManager.Play(_audio);
+                if(mCore != null && mCore.AudioManager != null)
+                    mCore.AudioManager.PlaySound(_audio);
             }
             virtual public void PlayAnimation(string _state)
             {

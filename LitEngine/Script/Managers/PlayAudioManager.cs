@@ -3,17 +3,6 @@ namespace LitEngine
 {
     public class PlayAudioManager : MonoManagerBase
     {
-        private static PlayAudioManager sInstance = null;
-        static private void CreatInstance()
-        {
-            if (sInstance == null)
-            {
-                UnityEngine.GameObject tobj = new UnityEngine.GameObject("PlayAudioManager");
-                UnityEngine.GameObject.DontDestroyOnLoad(tobj);
-                sInstance = tobj.AddComponent<PlayAudioManager>();
-                AppCore.AddPublicMono("PlayAudioManager", sInstance);
-            }
-        }
         private float mMusicValue = 1;
         public float MusicValue {
             get { return mMusicValue; }
@@ -53,14 +42,11 @@ namespace LitEngine
         }
         override protected void OnDestroy()
         {
-            sInstance = null;
             base.OnDestroy();
         }
 
         public void PlaySound(AudioClip _clip)
         {
-            if (sInstance == null)
-                CreatInstance();
             if (mIndex == mMaxSoundCount) mIndex = 0;
             mAudioSounds[mIndex].Stop();
             mAudioSounds[mIndex].clip = _clip;
@@ -69,17 +55,15 @@ namespace LitEngine
             mIndex++;
         }
 
-        public void LoopSound(AudioClip _clip)
+        public void PlayMusic(AudioClip _clip)
         {
-            if (sInstance == null)
-                CreatInstance();
             mBackMusic.Stop();
             mBackMusic.clip = _clip;
             mBackMusic.loop = true;
             mBackMusic.Play();
         }
 
-        public void StopLoopSound()
+        public void StopMusic()
         {
             mBackMusic.Stop();
         }
@@ -92,7 +76,7 @@ namespace LitEngine
             }
         }
 
-        public void ClearAllSound()
+        public void Clear()
         {
             mBackMusic.Stop();
             mBackMusic.clip = null;
@@ -104,49 +88,7 @@ namespace LitEngine
         }
 
         #region static
-        static public void SetLoopVolume(float _volume)
-        {
-            if (sInstance == null)
-                CreatInstance();
-            sInstance.MusicValue = _volume;
-        }
-        static public void SetSoundVolume(float _volume)
-        {
-            if (sInstance == null)
-                CreatInstance();
-            sInstance.SoundValue = _volume;
-        }
-        static public void Play(AudioClip _clip)
-        {
-            if (sInstance == null)
-                CreatInstance();
-            sInstance.PlaySound(_clip);
-        }
-
-        static public void PlayLoop(AudioClip _clip)
-        {
-            if (sInstance == null)
-                CreatInstance();
-            sInstance.LoopSound(_clip);
-        }
-
-        static public void StopLoop()
-        {
-            if (sInstance == null) return;
-            sInstance.StopLoopSound();
-        }
-
-        static public void StopAll()
-        {
-            if (sInstance == null) return;
-            sInstance.StopLoopSound();
-            sInstance.StopSound();
-        }
-
-        static public void Clear()
-        {
-            if (sInstance == null) return;
-        }
+      
         #endregion
 
 

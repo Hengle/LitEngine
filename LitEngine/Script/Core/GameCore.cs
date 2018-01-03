@@ -91,6 +91,11 @@ namespace LitEngine
             get;
             private set;
         }
+        public PlayAudioManager AudioManager
+        {
+            get;
+            private set;
+        }
         #endregion
         #region 初始化
         protected GameCore()
@@ -115,10 +120,15 @@ namespace LitEngine
             GameObject.DontDestroyOnLoad(tobj);
             GManager = tobj.AddComponent<GameUpdateManager>();
 
+            tobj = new GameObject("PlayAudioManager-" + AppName);
+            GameObject.DontDestroyOnLoad(tobj);
+            AudioManager = tobj.AddComponent<PlayAudioManager>();
+
             tobj = new GameObject("LoaderManager-" + AppName);
             GameObject.DontDestroyOnLoad(tobj);
             LManager = tobj.AddComponent<LoaderManager>();
             LManager.Init(AppName, AppPersistentResDataPath, AppStreamingAssetsResDataPath, AppResourcesDataPath);
+
 
             SManager = new ScriptManager(AppName,_scripttype);
 
@@ -144,7 +154,6 @@ namespace LitEngine
             if (IsSceneLoading)
                 DLog.LogError("异步加载场景未完成时,此时进行卸载GameCore操作,可能引起场景错乱.");
             //公用
-            PlayAudioManager.Clear();
             PublicUpdateManager.ClearByKey(AppName);
             NetTool.HttpNet.ClearByKey(AppName);
 
@@ -165,6 +174,7 @@ namespace LitEngine
             mDontDestroyList.Clear();
 
             GManager.DestroyManager();
+            AudioManager.DestroyManager();
             LManager.DestroyManager();
             SManager.Dispose();
 
