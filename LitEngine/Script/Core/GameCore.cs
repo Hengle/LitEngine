@@ -36,16 +36,14 @@ namespace LitEngine
 
         static public string RemoveEndWithString(string _source,string _des)
         {
-            while (_source.EndsWith(_des))
-                _source = _source.Remove(_source.Length - _des.Length);
-            return _source;
+            if (string.IsNullOrEmpty(_des)) return _source;
+            return _source.TrimEnd(_des.ToCharArray());
         }
 
         static public string RemoveStartWithString(string _source, string _des)
         {
-            while (_source.StartsWith(_des))
-                _source = _source.Remove(0,_des.Length);
-            return _source;
+            if (string.IsNullOrEmpty(_des)) return _source;
+            return _source.TrimStart(_des.ToCharArray());
         }
 
         #endregion
