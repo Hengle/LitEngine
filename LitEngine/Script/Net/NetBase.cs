@@ -231,6 +231,8 @@ namespace LitEngine
                 {
                     //需要注意释放顺序
                     mStartThread = false;
+                    WaitThreadJoin(mSendThread);
+                    WaitThreadJoin(mRecThread);
                     if (mSocket != null)
                     {
                         if (mSocket.ProtocolType == ProtocolType.Tcp && mSocket.Connected)
@@ -256,9 +258,7 @@ namespace LitEngine
                 try
                 {
                     WaitThreadJoin(tcreatthread);
-                    WaitThreadJoin(mSendThread);
-                    WaitThreadJoin(mRecThread);
-                   DLog.Log( mNetTag + ":socket is closed!");
+                    DLog.Log( mNetTag + ":socket is closed!");
                 }
                 catch (Exception err)
                 {
