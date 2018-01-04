@@ -36,8 +36,8 @@ namespace LitEngine
             Type[] ttypes = mAssembly.GetTypes();
             foreach (Type ttype in ttypes)
             {
-                if (mAssembType.ContainsKey(ttype.Name)) continue;
-                mAssembType.Add(ttype.Name, ttype);
+                if (mAssembType.ContainsKey(ttype.FullName)) continue;
+                mAssembType.Add(ttype.FullName, ttype);
             }
         }
 
@@ -48,9 +48,9 @@ namespace LitEngine
         }
         public IType GetICLRTypeAss(Type _type)
         {
-            if (mMapType.ContainsKey(_type.Name)) return mMapType[_type.Name];
-            mMapType.Add(_type.Name, new SystemType(_type));
-            return mMapType[_type.Name];
+            if (mMapType.ContainsKey(_type.FullName)) return mMapType[_type.FullName];
+            mMapType.Add(_type.FullName, new SystemType(_type));
+            return mMapType[_type.FullName];
         }
         #endregion
         #region 类型判断
@@ -72,7 +72,7 @@ namespace LitEngine
         }
         override public bool IsLSType(Type _type)
         {
-            if (GetAssType(_type.Name) != null)
+            if (GetAssType(_type.FullName) != null)
                 return true;
             return false;
         }
