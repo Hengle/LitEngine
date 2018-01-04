@@ -1,31 +1,36 @@
 ﻿using System;
 using System.Reflection;
-using UnityEngine;
 using ILRuntime.CLR.TypeSystem;
-using System.Collections.Generic;
 namespace LitEngine
 {
+    using UpdateSpace;
     public class CodeTool_SYS : CodeToolBase
     {
         private SafeMap<string, Type> mAssembType = new SafeMap<string, Type>();
         private SafeMap<string, IType> mMapType = new SafeMap<string, IType>();
         private System.Reflection.Assembly mAssembly;
-
+        private AppDomain mApp = null;
         public CodeTool_SYS(string _appname) : base(_appname)
         {
-
+            DLog.LogWarning("反射模式对多结构的支持目前有问题.暂时不能使用.单app结构,不需要卸载gamecore的不存在问题.");
         }
 
         override protected void DisposeNoGcCode()
         {
             mAssembType.Clear();
             mMapType.Clear();
-            DLog.LogError( "Assembly 无法直接卸载.如有卸载需求请使用IL模式.");
+            mAssembly = null;
+            if (mApp != null)
+                AppDomain.Unload(mApp);
+            mApp = null;
+           // DLog.LogError( "Assembly 无法直接卸载.如有卸载需求请使用IL模式.");
         }
         #region Sys类型缓存
-        public void AddAssemblyType(System.Reflection.Assembly _assembly)
+        public void AddAssemblyType(byte[] _dll,byte[] _pdb)
         {
-            mAssembly = _assembly;
+            if (_dll == null) throw new System.NullReferenceException("AddAssemblyType bytes 不可为null");
+
+            mAssembly = System.AppDomain.CurrentDomain.Load(_dll, _pdb);
             if (mAssembType == null)
                 mAssembType = new SafeMap<string, Type>();
             Type[] ttypes = mAssembly.GetTypes();
@@ -98,10 +103,22 @@ namespace LitEngine
             return _type.TypeForCLR.GetMethod(_funname, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static);
         }
 
+        override public object CallMethodNoTry(object method, object _this, params object[] _params)
+        {
+            return ((MethodInfo)method).Invoke(_this, _params);
+        }
+
         override public object CallMethod(object method, object _this, params object[] _params)
         {
-            if (method == null) return null;
-            return ((MethodInfo)method).Invoke(_this, _params);
+            try
+            {
+                return ((MethodInfo)method).Invoke(_this, _params);
+            }
+            catch (Exception _erro)
+            {
+                DLog.LogError(_erro);
+            }
+            return null;
         }
 
         override public object CallMethodByName(string _name, object _this, params object[] _params)
@@ -185,14 +202,33 @@ namespace LitEngine
 
         #endregion
         #region 委托
+        override public UpdateBase GetUpdateObjectAction(string _Function, string _classname, object _target)
+        {
+            IType ttype = GetLType(_classname);
+            if (ttype == null) return null;
+            Action tact = GetCSLEDelegate<Action>(_Function, ttype, _target);
+            if (tact == null) return null;
+            return new UpdateObject(string.Format("{0}:{1}->{2}", AppName, _classname, _Function), tact);
+        }
         override public K GetCSLEDelegate<K>(string _Function, IType _classtype, object _target)
         {
             if (_classtype == null || _target == null) return default(K);
             object ret = null;
             MethodInfo methodctor = (MethodInfo)GetLMethod(_classtype, _Function, 0);
             if (methodctor == null) return default(K);
-            ret = Delegate.CreateDelegate(typeof(K), _target, _Function);
-            return (K)ret;
+
+            try
+            {
+                ret = Delegate.CreateDelegate(typeof(K), _target, methodctor);
+                return (K)ret;
+            }
+            catch (Exception _error)
+            {
+                DLog.LogErrorFormat("_classtype = {0},_Function = {1},error = {2}", _classtype.Name, _Function, _error);
+                return default(K);
+            }
+
+            
         }
 
         override public K GetCSLEDelegate<K, T1>(string _Function, IType _classtype, object _target)

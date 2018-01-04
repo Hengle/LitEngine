@@ -28,7 +28,7 @@ namespace LitEngine
         {
             get
             {
-                if (!ProjectLoaded)
+                if (mCodeTool == null)
                     DLog.LogError( "脚本系统还未载入任何脚本.请执行 LoadProject 系列方法.");
                 return mCodeTool;
             }
@@ -165,10 +165,7 @@ namespace LitEngine
                         break;
                     case UseScriptType.UseScriptType_System:
                         {
-                            // byte[] pdbbytes = msPdb.ToArray();
-                            Assembly assem = Assembly.Load(_dll);
-                            ((CodeTool_SYS)CodeTool).AddAssemblyType(assem);
-
+                            ((CodeTool_SYS)CodeTool).AddAssemblyType(_dll, _pdb);
                         }
                         break;
                 }
