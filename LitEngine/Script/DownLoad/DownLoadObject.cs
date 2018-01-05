@@ -47,6 +47,7 @@ namespace LitEngine
             private bool mThreadRuning = false;
 
             private HttpWebRequest mReqest;
+            private WebResponse mResponse;
             private Stream mHttpStream;
 
             private Thread mDownLoadThread = null;
@@ -88,12 +89,10 @@ namespace LitEngine
 
                 mThreadRuning = false;
 
-                CloseHttpClient();
-
                 if (mDownLoadThread != null)
                     mDownLoadThread.Join();
 
-                
+                CloseHttpClient();
             }
             #endregion
             public void StartDownLoadAsync()
@@ -140,7 +139,7 @@ namespace LitEngine
                     }
 
                     mReqest = (HttpWebRequest)HttpWebRequest.Create(SourceURL);
-                    mReqest.Timeout = 20000;
+                    mReqest.Timeout = 5000;
 
                     if (SourceURL.Contains("https://"))
                         ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
@@ -148,9 +147,25 @@ namespace LitEngine
                     if (thaveindex > 0)
                         mReqest.AddRange((int)thaveindex);
 
-                    WebResponse tresponse = mReqest.GetResponse();
-                    mHttpStream = tresponse.GetResponseStream();
-                    ContentLength = tresponse.ContentLength;
+                    int tindex = 0;
+                    while(tindex++ < 4 && mThreadRuning)
+                    {
+                        try
+                        {
+                            mResponse = mReqest.GetResponse();
+                            break;
+                        }
+                        catch (System.Exception _error)
+                        {
+                            DLog.LogFormat("ReadNetByte 获取Response失败,尝试次数{0},error = {1}", tindex, _error);
+                        }
+                    }
+
+                    if (mResponse == null)
+                        throw new System.NullReferenceException("ReadNetByte 获取Response失败.");
+                    
+                    mHttpStream = mResponse.GetResponseStream();
+                    ContentLength = mResponse.ContentLength;
 
                     if (ttempfile == null)
                         ttempfile = System.IO.File.Create(TempFile);
@@ -208,6 +223,12 @@ namespace LitEngine
                     mHttpStream.Close();
                     mHttpStream.Dispose();
                     mHttpStream = null;
+                }
+
+                if(mResponse != null)
+                {
+                    mResponse.Close();
+                    mResponse = null;
                 }
 
                 if (mReqest != null)

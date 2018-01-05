@@ -29,6 +29,8 @@ namespace LitEngine
             bool mThreadRuning = false;
 
             public HttpWebRequest Request { get; private set; }
+            private WebResponse mResponse;
+            private System.IO.Stream mHttpStream = null;
             private Thread mSendThread = null;
 
             System.Action<string,string, byte[]> mDelgate;
@@ -48,6 +50,10 @@ namespace LitEngine
                 RecBuffer = null;
                 Error = null;
             }
+            ~HttpData()
+            {
+                Dispose(false);
+            }
 
             protected bool mDisposed = false;
             public void Dispose()
@@ -65,13 +71,12 @@ namespace LitEngine
                 UpdateObj = null;
 
                 mThreadRuning = false;
-                if (Request != null)
-                    Request.Abort();
-                Request = null;
 
                 if (mSendThread != null)
                     mSendThread.Join();
                 mSendThread = null;
+
+                CloseHttpClient();
 
                 mDelgate = null;
                 RecBuffer = null;
@@ -95,7 +100,6 @@ namespace LitEngine
             private void SendRequest()
             {
                 
-                System.IO.Stream tHttpStream = null;
                 System.IO.MemoryStream tmem = null;
                 
                 try
@@ -104,19 +108,19 @@ namespace LitEngine
                     if (mUrl.Contains("https://"))
                         ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
 
-                    WebResponse tresponse = Request.GetResponse();
-                    long tcontexlen = tresponse.ContentLength;
-                    tHttpStream = tresponse.GetResponseStream();
+                    mResponse = Request.GetResponse();
+                    long tcontexlen = mResponse.ContentLength;
+                    mHttpStream = mResponse.GetResponseStream();
 
                     tmem = new System.IO.MemoryStream();
                     int tlen = 256;
                     byte[] tbuffer = new byte[tlen];
                     int tReadSize = 0;
-                    tReadSize = tHttpStream.Read(tbuffer, 0, tlen);
+                    tReadSize = mHttpStream.Read(tbuffer, 0, tlen);
                     while (tReadSize > 0 && mThreadRuning)
                     {
                         tmem.Write(tbuffer, 0, tReadSize);
-                        tReadSize = tHttpStream.Read(tbuffer, 0, tlen);
+                        tReadSize = mHttpStream.Read(tbuffer, 0, tlen);
                     }
 
                     RecBuffer = tmem.GetBuffer();
@@ -126,18 +130,33 @@ namespace LitEngine
                     Error = _error.ToString();
                 }
 
-                if (tHttpStream != null)
-                    tHttpStream.Close();
-
-                if (Request != null)
-                    Request.Abort();
-                Request = null;
-
                 if (tmem != null)
                     tmem.Close();
-                
+                CloseHttpClient();
                 IsDone = true;
 
+            }
+
+            private void CloseHttpClient()
+            {
+                if (mHttpStream != null)
+                {
+                    mHttpStream.Close();
+                    mHttpStream.Dispose();
+                    mHttpStream = null;
+                }
+
+                if (mResponse != null)
+                {
+                    mResponse.Close();
+                    mResponse = null;
+                }
+
+                if (Request != null)
+                {
+                    Request.Abort();
+                    Request = null;
+                }
             }
             private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
             {

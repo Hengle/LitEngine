@@ -34,6 +34,22 @@ namespace LitEngine
             return tformatbuilder.ToString();
         }
 
+        static public string CombineFilePath(params object[] _params)
+        {
+            System.Text.StringBuilder tformatbuilder = new System.Text.StringBuilder();
+            for (int i = 0; i < _params.Length; i++)
+            {
+                string tobjstr = _params[i].ToString();
+                if (i != 0)
+                    tobjstr = RemoveStartWithString(tobjstr, "/");
+                tobjstr = RemoveEndWithString(tobjstr, "/");
+                tformatbuilder.Append(tobjstr);
+                if (i < _params.Length - 1)
+                    tformatbuilder.Append("/");
+            }
+            return tformatbuilder.ToString();
+        }
+
         static public string RemoveEndWithString(string _source,string _des)
         {
             if (string.IsNullOrEmpty(_des)) return _source;
