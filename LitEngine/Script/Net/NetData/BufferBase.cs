@@ -7,7 +7,7 @@ namespace LitEngine
     {
         public class BufferBase
         {
-            static public bool IsHDate = true;
+            static public bool IsHDate = false;
             static public CodeTool_CS sCodeCS = new CodeTool_CS();//C#类工具
             private byte[] mBuffer = null;
             private int mIndex = 0;
