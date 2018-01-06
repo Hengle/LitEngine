@@ -87,7 +87,7 @@ namespace LitEngine
             #endregion
             #region 分发
             static public int OneFixedUpdateChoseCount = 5;
-            protected SafeMap<int, System.Action<ReceiveData>> mMsgHandlerList = new SafeMap<int, System.Action<ReceiveData>>();//消息注册列表
+            protected SafeMap<int, SafeList<System.Action<ReceiveData>>> mMsgHandlerList = new SafeMap<int, SafeList<System.Action<ReceiveData>>>();//消息注册列表
             protected SafeQueue<MSG_RECALL_DATA> mToMainThreadMsgList = new SafeQueue<MSG_RECALL_DATA>();//给主线程发送通知
             #endregion
             #region 日志
@@ -300,31 +300,51 @@ namespace LitEngine
 
             #region 消息注册与分发
 
+            virtual public void ClearAppDelgate(string _appname)
+            {
+                if (mMsgHandlerList.Count == 0) return;
+                List<int> tkeys = new List<int>(mMsgHandlerList.Keys);
+                for(int i = tkeys.Count - 1 ; i >= 0 ; i--)
+                {
+                    SafeList<System.Action<ReceiveData>> tlist = mMsgHandlerList[tkeys[i]];
+                    for(int j = tlist.Count - 1;j >=0 ; j--)
+                    {
+                        System.Action<ReceiveData> tact = tlist[j];
+                        if(tact.Target != null && tact.Target.GetType().IsSubclassOf(typeof(ILRuntime.Runtime.Intepreter.DelegateAdapter)))
+                        {
+                            ILRuntime.Runtime.Intepreter.DelegateAdapter ttypeinstance = (ILRuntime.Runtime.Intepreter.DelegateAdapter)tact.Target;
+                            if (ttypeinstance.AppName.Equals(_appname))
+                                tlist.RemoveAt(j);
+                        }
+                    }
+                    if (tlist.Count == 0)
+                        mMsgHandlerList.Remove(tkeys[i]);
+                }
+            }
+
             virtual public void Reg(int msgid, System.Action<ReceiveData> func)
             {
-                System.Action<ReceiveData> action = null;
-
+                SafeList<System.Action<ReceiveData>> tlist = null;
                 if (mMsgHandlerList.ContainsKey(msgid))
                 {
-                    action = mMsgHandlerList[msgid];
-                    action += func;
-                    mMsgHandlerList[msgid] = action;
+                    tlist = mMsgHandlerList[msgid];
                 }
                 else
                 {
-                    mMsgHandlerList.Add(msgid, func);
+                    tlist = new SafeList<System.Action<ReceiveData>>();
+                    mMsgHandlerList.Add(msgid, tlist);
                 }
+                if (!tlist.Contains(func))
+                    tlist.Add(func);
             }
             virtual public void UnReg(int msgid, System.Action<ReceiveData> func)
             {
-                System.Action<ReceiveData> action = null;
-
-                if (mMsgHandlerList.ContainsKey(msgid))
-                {
-                    action = mMsgHandlerList[msgid];
-                    action -= func;
-                    mMsgHandlerList[msgid] = action;
-                }
+                if (!mMsgHandlerList.ContainsKey(msgid)) return;
+                SafeList<System.Action<ReceiveData>> tlist = mMsgHandlerList[msgid];
+                if (tlist.Contains(func))
+                    tlist.Remove(func);
+                if (tlist.Count == 0)
+                    mMsgHandlerList.Remove(msgid);
             }
 
             virtual public void Call(int _msgid, ReceiveData _msg)
@@ -332,9 +352,10 @@ namespace LitEngine
                 try {
                     if (mMsgHandlerList.ContainsKey(_msgid))
                     {
-                        System.Action<ReceiveData> action = mMsgHandlerList[_msgid];
-                        if (action != null)
-                            action(_msg);
+                        SafeList<System.Action<ReceiveData>> tlist = mMsgHandlerList[_msgid];
+                        int tlen = tlist.Count;
+                        for (int i = tlen -1 ; i >= 0; i--)
+                            tlist[i](_msg);
                     }
                 }
                 catch (Exception _error)

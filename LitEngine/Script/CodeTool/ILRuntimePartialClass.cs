@@ -72,4 +72,13 @@ namespace ILRuntime.Runtime.Enviorment
             clrDelegates.Clear();
         }
     }
+
+    
+}
+namespace ILRuntime.Runtime.Intepreter
+{
+    abstract partial class DelegateAdapter : ILTypeInstance, IDelegateAdapter
+    {
+        public string AppName { get { return appdomain.AppName; } }
+    }
 }

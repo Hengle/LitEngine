@@ -626,7 +626,7 @@ namespace ILRuntime.Runtime.Intepreter
         }
     }
     #endregion
-    abstract class DelegateAdapter : ILTypeInstance, IDelegateAdapter
+    abstract partial class DelegateAdapter : ILTypeInstance, IDelegateAdapter
     {
         protected ILMethod method;
         protected ILTypeInstance instance;

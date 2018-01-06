@@ -170,6 +170,7 @@ namespace LitEngine
             //公用
             PublicUpdateManager.ClearByKey(AppName);
             NetTool.HttpNet.ClearByKey(AppName);
+            NetTool.TCPNet.Instance.ClearAppDelgate(AppName);
 
 
             for (int i = mScriptInterfaces.Count - 1; i >= 0; i--)
