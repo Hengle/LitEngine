@@ -31,6 +31,16 @@ namespace LitEngine
         }
         protected void RegDelegate()
         {
+
+            RegMethodDelegate();
+            RegFunctionDelegate();
+            RegDelegateConvertor();
+            if (RegisterDelegate != null)
+                RegisterDelegate(mApp);
+            
+        }
+        protected void RegMethodDelegate()
+        {
             mApp.DelegateManager.RegisterMethodDelegate<float>();
             mApp.DelegateManager.RegisterMethodDelegate<int>();
             mApp.DelegateManager.RegisterMethodDelegate<bool>();
@@ -57,19 +67,29 @@ namespace LitEngine
             mApp.DelegateManager.RegisterMethodDelegate<string, string>();
             mApp.DelegateManager.RegisterMethodDelegate<string, object>();
 
-            mApp.DelegateManager.RegisterMethodDelegate<string,string,byte[]>();
+            mApp.DelegateManager.RegisterMethodDelegate<string, string, byte[]>();
             mApp.DelegateManager.RegisterMethodDelegate<long, long, float>();
-            mApp.DelegateManager.RegisterMethodDelegate<int,int,float>();
+            mApp.DelegateManager.RegisterMethodDelegate<int, int, float>();
             mApp.DelegateManager.RegisterMethodDelegate<string, int, int>();
             mApp.DelegateManager.RegisterMethodDelegate<int, string, string>();
             mApp.DelegateManager.RegisterMethodDelegate<string, object, object>();
             mApp.DelegateManager.RegisterMethodDelegate<object, object, object>();
+        }
+        protected void RegFunctionDelegate()
+        {
+            mApp.DelegateManager.RegisterFunctionDelegate<float>();
+            mApp.DelegateManager.RegisterFunctionDelegate<int>();
+            mApp.DelegateManager.RegisterFunctionDelegate<bool>();
+            mApp.DelegateManager.RegisterFunctionDelegate<short>();
+            mApp.DelegateManager.RegisterFunctionDelegate<string>();
+            mApp.DelegateManager.RegisterFunctionDelegate<object>();
 
-            RegDelegateConvertor();
-
-            if (RegisterDelegate != null)
-                RegisterDelegate(mApp);
-            
+            mApp.DelegateManager.RegisterFunctionDelegate<float, float>();
+            mApp.DelegateManager.RegisterFunctionDelegate<int, int>();
+            mApp.DelegateManager.RegisterFunctionDelegate<bool, bool>();
+            mApp.DelegateManager.RegisterFunctionDelegate<short, short>();
+            mApp.DelegateManager.RegisterFunctionDelegate<string, string>();
+            mApp.DelegateManager.RegisterFunctionDelegate<object, object>();
         }
         protected void RegDelegateConvertor()
         {
