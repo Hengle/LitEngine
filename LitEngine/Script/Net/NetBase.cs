@@ -128,6 +128,7 @@ namespace LitEngine
                 mDisposed = true;
                 if (IsCOrD())
                     return;
+                mReCallDelgate = null;
                 mMsgHandlerList.Clear();
                 DisConnect();
                 mState = TcpState.Disposed;
@@ -302,24 +303,35 @@ namespace LitEngine
 
             virtual public void ClearAppDelgate(string _appname)
             {
-                if (mMsgHandlerList.Count == 0) return;
-                List<int> tkeys = new List<int>(mMsgHandlerList.Keys);
-                for(int i = tkeys.Count - 1 ; i >= 0 ; i--)
+                if (mReCallDelgate!= null && mReCallDelgate.Method.DeclaringType.IsSubclassOf(typeof(ILRuntime.Runtime.Intepreter.DelegateAdapter)))
                 {
-                    SafeList<System.Action<ReceiveData>> tlist = mMsgHandlerList[tkeys[i]];
-                    for(int j = tlist.Count - 1;j >=0 ; j--)
-                    {
-                        System.Action<ReceiveData> tact = tlist[j];
-                        if(tact.Target != null && tact.Target.GetType().IsSubclassOf(typeof(ILRuntime.Runtime.Intepreter.DelegateAdapter)))
-                        {
-                            ILRuntime.Runtime.Intepreter.DelegateAdapter ttypeinstance = (ILRuntime.Runtime.Intepreter.DelegateAdapter)tact.Target;
-                            if (ttypeinstance.AppName.Equals(_appname))
-                                tlist.RemoveAt(j);
-                        }
-                    }
-                    if (tlist.Count == 0)
-                        mMsgHandlerList.Remove(tkeys[i]);
+                    ILRuntime.Runtime.Intepreter.DelegateAdapter ttypeinstance = (ILRuntime.Runtime.Intepreter.DelegateAdapter)mReCallDelgate.Target;
+                    if (ttypeinstance!=null && ttypeinstance.AppName.Equals(_appname))
+                        mReCallDelgate = null;
                 }
+                
+                if(mMsgHandlerList.Count > 0 )
+                {
+                    List<int> tkeys = new List<int>(mMsgHandlerList.Keys);
+                    for (int i = tkeys.Count - 1; i >= 0; i--)
+                    {
+                        SafeList<System.Action<ReceiveData>> tlist = mMsgHandlerList[tkeys[i]];
+                        for (int j = tlist.Count - 1; j >= 0; j--)
+                        {
+                            System.Action<ReceiveData> tact = tlist[j];
+                            
+                            if (tact.Method.DeclaringType.IsSubclassOf(typeof(ILRuntime.Runtime.Intepreter.DelegateAdapter)))
+                            {
+                                ILRuntime.Runtime.Intepreter.DelegateAdapter ttypeinstance = (ILRuntime.Runtime.Intepreter.DelegateAdapter)tact.Target;
+                                if (ttypeinstance!=null && ttypeinstance.AppName.Equals(_appname))
+                                    tlist.RemoveAt(j);
+                            }
+                        }
+                        if (tlist.Count == 0)
+                            mMsgHandlerList.Remove(tkeys[i]);
+                    }
+                }
+               
             }
 
             virtual public void Reg(int msgid, System.Action<ReceiveData> func)

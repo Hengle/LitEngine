@@ -66,9 +66,7 @@ namespace LitEngine
                 {
                     UpdateBase tobj = mList[i];
                     if (!tobj.Key.Equals(_key)) continue;
-                    mList.RemoveAt(i);
-                    tobj.Owner = null;
-                    tobj.Dispose(); 
+                    tobj.Dead = true;
                 }
             }
 
@@ -89,7 +87,12 @@ namespace LitEngine
             {
                 if (mList.Count == 0) return;
                 for (int i = mList.Count - 1; i >= 0; i--)
-                    RunUpdate(mList[i]);   
+                {
+                    if (!mList[i].Dead)
+                        RunUpdate(mList[i]);
+                    else
+                        ClearObj(mList[i]);
+                }
             }
         }
     }

@@ -10,6 +10,7 @@ namespace LitEngine
         public class UpdateBase:IDisposable
         {
             public string Key { get; protected set; }
+            public bool Dead { get; set; }
             public UpdateObjectVector Owner { get;set; }
             public bool IsRegToOwner { get; protected set; }
             protected Action mZeroDelegate = null;
@@ -44,6 +45,7 @@ namespace LitEngine
                 Key = _key != null ? _key:"";
                 mZeroDelegate = _delegate;
                 IsRegToOwner = false;
+                Dead = false;
             }
 
             public UpdateBase()
@@ -97,6 +99,7 @@ namespace LitEngine
 
             virtual public void RunDelgete()
             {
+                if (Dead) return;
                 if (!IsTimeOut()) return;
                 CallMethod();
             }
