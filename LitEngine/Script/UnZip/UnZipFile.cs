@@ -20,7 +20,7 @@ namespace LitEngine
             private string mDestinationFilePath = null;
             private Stream mStream = null;
             private Thread mAsyncThread = null;
-            private bool mIsThreadEnd = false;
+            private bool mThreadRuning = false;
 
             #region 构造.释放
             public UnZipObject(string _source, string _destination)
@@ -59,9 +59,9 @@ namespace LitEngine
                 if (mDisposed)
                     return;
                 mDisposed = true;
+                mThreadRuning = false;
                 if (mAsyncThread != null)
                 {
-                    mIsThreadEnd = true;
                     mAsyncThread.Join();
                     mAsyncThread = null;
                 }
@@ -82,6 +82,7 @@ namespace LitEngine
             {
                 if (IsStart) return;
                 IsStart = true;
+                mThreadRuning = true;
                 StartUnZipFileByStream();
             }
 
@@ -89,6 +90,7 @@ namespace LitEngine
             {
                 if (IsStart) return;
                 IsStart = true;
+                mThreadRuning = true;
                 mAsyncThread = new Thread(StartUnZipFileByStream);
                 mAsyncThread.IsBackground = true;
                 mAsyncThread.Start();
@@ -102,7 +104,7 @@ namespace LitEngine
                     IsDone = true;
                     return;
                 }
-
+                
                 try
                 {
                     using (ZipInputStream f = new ZipInputStream(mStream))
@@ -116,7 +118,7 @@ namespace LitEngine
                         int tcachelen = 2048;
 
                         byte[] tcachebuffer = new byte[tcachelen];  //每次缓冲 2048 字节
-                        while (zp != null && !mIsThreadEnd)
+                        while (zp != null && mThreadRuning)
                         {
                             CurFile = zp.Name;
                             tunziplen += zp.CompressedSize;
@@ -143,7 +145,7 @@ namespace LitEngine
                                 using (FileStream ts = File.Create(tnewfile))
                                 {
                                     int treadlen = 0;
-                                    while (true && !mIsThreadEnd) //持续读取字节，直到一个“ZipEntry”字节读完
+                                    while (true && mThreadRuning) //持续读取字节，直到一个“ZipEntry”字节读完
                                     {
                                         treadlen = f.Read(tcachebuffer, 0, tcachebuffer.Length); //读取“ZipEntry”中的字节
                                         if (treadlen > 0)
