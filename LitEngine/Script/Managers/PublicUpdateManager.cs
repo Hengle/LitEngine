@@ -43,6 +43,9 @@ namespace LitEngine
         static public void DownLoadFileAsync(string _AppName, string _sourceurl, string _destination, bool _IsClear, Action<string, string> _finished, Action<long, long, float> _progress)
         {
             if (sInstance == null) CreatInstance();
+            string tdeleappname = GameCore.GetDelegateAppName(_finished);
+            if (!string.IsNullOrEmpty(tdeleappname))
+                _AppName = tdeleappname;
             if (DownLoadTask.DownLoadFileAsync(sInstance.UpdateList, _AppName, _sourceurl, _destination, _IsClear, _finished, _progress))
                 sInstance.SetActive(true);
         }
@@ -50,6 +53,9 @@ namespace LitEngine
         static public void UnZipFileAsync(string _appname, string _source, string _destination, Action<string> _finished, Action<float> _progress)
         {
             if (sInstance == null) CreatInstance();
+            string tdeleappname = GameCore.GetDelegateAppName(_finished);
+            if (!string.IsNullOrEmpty(tdeleappname))
+                _appname = tdeleappname;
             if (UnZipTask.UnZipFileAsync(sInstance.UpdateList, _appname, _source, _destination, _finished, _progress))
                 sInstance.SetActive(true);
         }

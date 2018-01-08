@@ -75,7 +75,6 @@ namespace LitEngine
                     for (int i = mWaitLoadBundleList.Count - 1; i >= 0; i--)
                     {
                         BaseBundle tbundle = mWaitLoadBundleList[i];
-                        if (tbundle.IsDone()) continue;
                         mBundleList.Remove(tbundle, false);
                         PublicUpdateManager.AddWaitLoadBundle(tbundle);
                     }

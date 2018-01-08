@@ -10,6 +10,19 @@ namespace LitEngine
         public const string ResDataPath = "/ResData/";//App资源目录
         public const string ConfigDataPath = "/ConfigData/";//App配置文件目录
         public const string ScriptDataPath = "/LogicDll/";//App配置文件目录
+        #region static tool
+        static public string GetDelegateAppName(System.Delegate _delgate)
+        {
+            if (_delgate == null) return "";
+            if (_delgate.Method.DeclaringType.IsSubclassOf(typeof(ILRuntime.Runtime.Intepreter.DelegateAdapter)))
+            {
+                ILRuntime.Runtime.Intepreter.DelegateAdapter ttypeinstance = (ILRuntime.Runtime.Intepreter.DelegateAdapter)_delgate.Target;
+                if (ttypeinstance != null)
+                    return ttypeinstance.AppName;
+            }
+            return null;
+        }
+        #endregion
         #region static path获取
         static public string GetPersistentAppPath(string _appname)
         {
@@ -184,7 +197,7 @@ namespace LitEngine
 
             for (int i = mDontDestroyList.Count - 1;i >= 0;i--)
             {
-                Destroy(mDontDestroyList[i]);
+                DestroyImmediate(mDontDestroyList[i]);
             }
             mDontDestroyList.Clear();
 

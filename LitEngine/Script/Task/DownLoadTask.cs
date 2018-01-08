@@ -116,8 +116,10 @@ namespace LitEngine
                     if (!mObject.IsDone) return false;
                     mIsDone = true;
                     try {
-                        if (mFinished != null)
-                            mFinished(mObject.CompleteFile, mObject.Error);
+                        Action<string, string> tfinished = mFinished;
+                        Dispose();
+                        if (tfinished != null)
+                            tfinished(mObject.CompleteFile, mObject.Error);
                     }
                     catch (System.Exception _error)
                     {
@@ -131,7 +133,6 @@ namespace LitEngine
             private void Update()
             {
                 if (!IsDone) return;
-                Dispose(); 
             }
         }
 

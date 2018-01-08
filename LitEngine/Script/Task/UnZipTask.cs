@@ -114,8 +114,10 @@ namespace LitEngine
                     mIsDone = true;
                     try
                     {
-                        if (mFinished != null)
-                            mFinished(mUnZipObject.Error);
+                        Action<string> tfinished = mFinished;
+                        Dispose();
+                        if (tfinished != null)
+                            tfinished(mUnZipObject.Error);
                     }
                     catch (System.Exception _error)
                     {
@@ -128,7 +130,6 @@ namespace LitEngine
             private void Update()
             {
                 if (!IsDone) return;
-                Dispose();
             }
         }
     }
