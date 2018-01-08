@@ -67,6 +67,7 @@ namespace LitEngine
                 if (mDisposed)
                     return;
                 mDisposed = true;
+
                 UpdateObj.UnRegToOwner();
                 UpdateObj = null;
 
@@ -80,7 +81,7 @@ namespace LitEngine
 
                 mDelgate = null;
                 RecBuffer = null;
-                
+                mSending = false;
             }
 
 
@@ -166,10 +167,22 @@ namespace LitEngine
             private void Update()
             {
                 if (!IsDone) return;
-                if (mDelgate != null && mDelgate.Target != null)
-                    mDelgate(mKey, Error, RecBuffer);
-                mSending = false;
+
+                System.Action<string, string, byte[]> tdelegate = mDelgate;
+                string tkey = mKey;
+                string terror = Error;
+                byte[] tbuffer = RecBuffer;
                 Dispose();
+                try
+                {
+                    if (tdelegate != null)
+                        tdelegate(tkey, terror, tbuffer);
+                }
+                catch (System.Exception _error)
+                {
+                    DLog.LogError(_error);
+                }
+                
             }
 
         }

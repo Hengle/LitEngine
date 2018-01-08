@@ -35,6 +35,11 @@ namespace LitEngine
 
             abstract protected void DisposeGC();
 
+            virtual protected void Update()
+            {
+                if (!IsDone) return;
+            }
+            abstract public bool IsDone { get;}
         }
     }
 }

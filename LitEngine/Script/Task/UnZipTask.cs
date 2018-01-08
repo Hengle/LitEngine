@@ -102,7 +102,7 @@ namespace LitEngine
                 return true;
             }
 
-            public bool IsDone
+            override public bool IsDone
             {
                 get
                 {
@@ -112,12 +112,14 @@ namespace LitEngine
                         mProgress(mUnZipObject.progress);
                     if (!mUnZipObject.IsDone) return false;
                     mIsDone = true;
+
+                    Action<string> tfinished = mFinished;
+                    string terror = mUnZipObject.Error;
+                    Dispose();
                     try
                     {
-                        Action<string> tfinished = mFinished;
-                        Dispose();
                         if (tfinished != null)
-                            tfinished(mUnZipObject.Error);
+                            tfinished(terror);
                     }
                     catch (System.Exception _error)
                     {
@@ -125,11 +127,6 @@ namespace LitEngine
                     }
                     return true;
                 }
-            }
-
-            private void Update()
-            {
-                if (!IsDone) return;
             }
         }
     }

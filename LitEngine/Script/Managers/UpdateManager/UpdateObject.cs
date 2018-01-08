@@ -106,7 +106,7 @@ namespace LitEngine
 
             virtual public void CallMethod()
             {
-                if (mZeroDelegate != null && mZeroDelegate.Target != null)
+                if (mZeroDelegate != null)
                     mZeroDelegate();
             }
 

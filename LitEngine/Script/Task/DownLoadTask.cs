@@ -105,7 +105,7 @@ namespace LitEngine
                 return true;
             }
 
-            public bool IsDone
+            override public bool IsDone
             {
                 get
                 {
@@ -115,11 +115,14 @@ namespace LitEngine
                         mProgress((int)mObject.DownLoadedLength,(int)mObject.ContentLength, mObject.Progress);
                     if (!mObject.IsDone) return false;
                     mIsDone = true;
+
+                    Action<string, string> tfinished = mFinished;
+                    string tcompfile = mObject.CompleteFile;
+                    string terror = mObject.Error;
+                    Dispose();
                     try {
-                        Action<string, string> tfinished = mFinished;
-                        Dispose();
                         if (tfinished != null)
-                            tfinished(mObject.CompleteFile, mObject.Error);
+                            tfinished(tcompfile, terror);
                     }
                     catch (System.Exception _error)
                     {
@@ -128,11 +131,6 @@ namespace LitEngine
                     
                     return true;
                 }
-            }
-
-            private void Update()
-            {
-                if (!IsDone) return;
             }
         }
 
