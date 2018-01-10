@@ -93,7 +93,7 @@ namespace ILRuntime.Runtime.Intepreter
         {
             mParams[0] = p1;
             if (method.HasThis)
-                return (TResult)appdomain.Invoke(method, instance, mParams);
+                return (TResult)appdomain.Invoke(method, instance, p1);
             else
                 return (TResult)appdomain.Invoke(method, null, mParams);
         }
@@ -318,6 +318,7 @@ namespace ILRuntime.Runtime.Intepreter
 
         void InvokeILMethod(T1 p1)
         {
+            mParams[0] = p1;
             if (method.HasThis)
                 appdomain.Invoke(method, instance, mParams);
             else
