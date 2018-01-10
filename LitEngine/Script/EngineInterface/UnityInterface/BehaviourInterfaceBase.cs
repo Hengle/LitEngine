@@ -78,7 +78,9 @@ namespace LitEngine
                 }
                 mIsDestory = true;
 
-                if(mCore != null)
+                CallScriptFunctionByName("OnDestroy");
+
+                if (mCore != null)
                 {
                     mCore.RemveScriptInterface(this);
                     mCore = null;
@@ -264,7 +266,6 @@ namespace LitEngine
             }
             virtual protected void OnDestroy()
             {
-                CallScriptFunctionByName("OnDestroy");
                 ClearScriptObject();
             }
 

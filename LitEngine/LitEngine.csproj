@@ -69,6 +69,9 @@
     <Compile Include="Script\GoogleProto\InvalidProtocolBufferException.cs" />
     <Compile Include="Script\GoogleProto\ProtoPreconditions.cs" />
     <Compile Include="Script\GoogleProto\WireFormat.cs" />
+    <Compile Include="Script\IL\ILRuntime\Runtime\Debugger\Protocol\CSEnumChildren.cs" />
+    <Compile Include="Script\IL\ILRuntime\Runtime\Debugger\Protocol\CSResolveIndexer.cs" />
+    <Compile Include="Script\IL\ILRuntime\Runtime\Debugger\Protocol\SCEnumChildrenResult.cs" />
     <Compile Include="Script\Managers\PlayAudioManager.cs" />
     <Compile Include="Script\Managers\PublicUpdateManager.cs" />
     <Compile Include="Script\RootScript.cs" />

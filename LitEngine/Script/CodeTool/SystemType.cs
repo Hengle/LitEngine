@@ -40,7 +40,7 @@ namespace ILRuntime.CLR.TypeSystem
             }
         }
         public Type ReflectionType { get; set; }
-
+        public int ArrayRank { get; set; }
         public IType BaseType { get; set; }
 
         public IType[] Implements { get; set; }
@@ -76,6 +76,13 @@ namespace ILRuntime.CLR.TypeSystem
         {
             return null;
         }
+
+
+        public IType MakeArrayType(int rank)
+        {
+            return null;
+        }
+
         /// <summary>
         ///  Get a specified Method in this type
         /// </summary>

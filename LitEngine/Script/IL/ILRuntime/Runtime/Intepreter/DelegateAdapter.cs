@@ -1,5 +1,4 @@
-﻿#region 修改后的
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,7 +15,7 @@ namespace ILRuntime.Runtime.Intepreter
     class FunctionDelegateAdapter<TResult> : DelegateAdapter
     {
         Func<TResult> action;
-        protected object[] mParams;
+
         public FunctionDelegateAdapter()
         {
 
@@ -300,6 +299,7 @@ namespace ILRuntime.Runtime.Intepreter
         protected object[] mParams = new object[1];
         public MethodDelegateAdapter()
         {
+
         }
 
         private MethodDelegateAdapter(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
@@ -318,7 +318,6 @@ namespace ILRuntime.Runtime.Intepreter
 
         void InvokeILMethod(T1 p1)
         {
-            mParams[0] = p1;
             if (method.HasThis)
                 appdomain.Invoke(method, instance, mParams);
             else
@@ -463,8 +462,8 @@ namespace ILRuntime.Runtime.Intepreter
 
     class MethodDelegateAdapter<T1, T2, T3, T4> : DelegateAdapter
     {
-        protected object[] mParams = new object[4];
         Action<T1, T2, T3, T4> action;
+		protected object[] mParams = new object[4];
         public MethodDelegateAdapter()
         {
 
@@ -522,7 +521,7 @@ namespace ILRuntime.Runtime.Intepreter
     class MethodDelegateAdapter : DelegateAdapter
     {
         Action action;
-
+        
         public MethodDelegateAdapter()
         {
 
@@ -583,7 +582,7 @@ namespace ILRuntime.Runtime.Intepreter
         protected DummyDelegateAdapter(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
             : base(appdomain, instance, method)
         {
-
+            
         }
 
         public override Delegate Delegate
@@ -675,7 +674,7 @@ namespace ILRuntime.Runtime.Intepreter
             if (method.HasThis)
                 esp = ILIntepreter.PushObject(esp, mStack, instance);
             int paramCnt = method.ParameterCount;
-            for (int i = paramCnt; i > 0; i--)
+            for(int i = paramCnt; i > 0; i--)
             {
                 intp.CopyToStack(esp, Minus(ebp, i), mStack);
                 esp++;
@@ -704,9 +703,15 @@ namespace ILRuntime.Runtime.Intepreter
             {
                 var ret = esp - 1;
                 retSObj = *ret;
-                if (ret->ObjectType >= ObjectTypes.Object)
+                if(ret->ObjectType>= ObjectTypes.Object)
                 {
                     retObj = mStack[ret->Value];
+                    if(retObj == null)
+                    {
+                        retSObj.ObjectType = ObjectTypes.Null;
+                        retSObj.Value = -1;
+                        retSObj.ValueLow = 0;
+                    }
                 }
                 intp.Free(ret);
             }
@@ -719,7 +724,7 @@ namespace ILRuntime.Runtime.Intepreter
             if (hasReturn)
             {
                 *returnVal = retSObj;
-                if (retObj != null)
+                if(retObj != null)
                 {
                     returnVal->Value = mStack.Count;
                     mStack.Add(retObj);
@@ -821,7 +826,7 @@ namespace ILRuntime.Runtime.Intepreter
                 {
                     sb.Append("appdomain.DelegateManager.RegisterMethodDelegate<");
                     bool first = true;
-                    foreach (var i in method.Parameters)
+                    foreach(var i in method.Parameters)
                     {
                         if (first)
                         {
@@ -832,7 +837,7 @@ namespace ILRuntime.Runtime.Intepreter
                             sb.Append(", ");
                         }
                         i.TypeForCLR.GetClassName(out clsName, out rName, out isByRef);
-                        sb.Append(rName);
+                        sb.Append(rName);                        
                     }
                     sb.AppendLine(">();");
                 }
@@ -883,5 +888,3 @@ namespace ILRuntime.Runtime.Intepreter
         bool Equals(Delegate dele);
     }
 }
-
-#endregion
