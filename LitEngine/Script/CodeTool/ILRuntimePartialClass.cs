@@ -4,8 +4,10 @@ namespace ILRuntime.Runtime.Enviorment
     public partial class AppDomain
     {
         public string AppName { get; set; }
+        public bool IsCleared { get; private set; }
         public void Clear()
         {
+            IsCleared = true;
             DelegateManager.Clear();
 
             freeIntepreters.Clear();
@@ -79,6 +81,39 @@ namespace ILRuntime.Runtime.Intepreter
 {
     abstract partial class DelegateAdapter : ILTypeInstance, IDelegateAdapter
     {
-        public string AppName { get { return appdomain != null ? appdomain.AppName : ""; } }
+        public string AppName { get; protected set; }
+        public string MethodName { get; protected set; }
+        public string ClassName { get; protected set; }
+        protected object[] mParams;
+        virtual protected void InitDelegate(int _paramcount)
+        {
+            if(mParams == null && _paramcount > 0)
+                mParams = new object[_paramcount];
+            AppName = appdomain != null ? appdomain.AppName : "";
+            ClassName = method != null ? method.DeclearingType.FullName : "";
+            MethodName = method != null ? method.Name : "";
+        }
+
+        virtual protected object InvokeILMethodByDomain()
+        {
+            if(appdomain == null || appdomain.IsCleared)
+            {
+                DLog.LogErrorFormat("App已被清除.请检查是否有未清除的委托注册.AppName = {0},Class = {1},Method = {2}", AppName,ClassName,MethodName);
+                appdomain = null;
+                return null;
+            }
+            try
+            {
+                if (method.HasThis)
+                    return appdomain.Invoke(method, instance, mParams);
+                else
+                    return appdomain.Invoke(method, null, mParams);
+            }
+            catch(System.Exception _error)
+            {
+                DLog.LogErrorFormat("委托调用异常.AppName = {0},Class = {1},Method = {2},error = {3}", AppName, ClassName, MethodName, _error);
+            }
+            return null;
+        }
     }
 }
