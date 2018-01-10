@@ -52,7 +52,7 @@ namespace ILRuntime.Runtime.CLRBinding
         internal static string GenerateMethodWraperCode(this Type type, MethodInfo[] methods, string typeClsName, HashSet<MethodBase> excludes)
         {
             StringBuilder sb = new StringBuilder();
-
+            bool isMultiArr = type.IsArray && type.GetArrayRank() > 1;
             int idx = 0;
             foreach (var i in methods)
             {
@@ -79,7 +79,12 @@ namespace ILRuntime.Runtime.CLRBinding
                     p.ParameterType.GetClassName(out tmp, out clsName, out isByRef);
                     if (isByRef)
                         sb.AppendLine("            ptr_of_this_method = ILIntepreter.GetObjectAndResolveReference(ptr_of_this_method);");
-                    sb.AppendLine(string.Format("            {0} {1} = {2};", clsName, p.Name, p.ParameterType.GetRetrieveValueCode(clsName)));
+                    if (isMultiArr)
+                    {
+                        sb.AppendLine(string.Format("            {0} a{1} = {2};", clsName, j, p.ParameterType.GetRetrieveValueCode(clsName)));
+                    }
+                    else
+                        sb.AppendLine(string.Format("            {0} {1} = {2};", clsName, p.Name, p.ParameterType.GetRetrieveValueCode(clsName)));
                     if (!isByRef && !p.ParameterType.IsPrimitive)
                         sb.AppendLine("            __intp.Free(ptr_of_this_method);");
                 }
@@ -222,6 +227,24 @@ namespace ILRuntime.Runtime.CLRBinding
                         else
                             throw new NotImplementedException();
                     }
+                    else if(isMultiArr)
+                    {
+                        if (i.Name == "Get")
+                        {
+                            sb.Append("instance_of_this_method[");
+                            param.AppendParameters(sb, true);
+                            sb.AppendLine("];");
+                        }
+                        else
+                        {
+                            sb.Append("instance_of_this_method[");
+                            param.AppendParameters(sb, true, 1);
+                            sb.Append("]");
+                            sb.Append(" = a");
+                            sb.Append(param.Length);
+                            sb.AppendLine(";");
+                        }
+                    }
                     else
                     {
                         sb.Append(string.Format("instance_of_this_method.{0}(", i.Name));
@@ -266,8 +289,8 @@ namespace ILRuntime.Runtime.CLRBinding
                         }
                         else
                         {
-                            var t = __domain.GetType(___obj.GetType()) as CLRType;
-                            t.SetFieldValue(ptr_of_this_method->ValueLow, ref ___obj, ");
+                            var ___type = __domain.GetType(___obj.GetType()) as CLRType;
+                            ___type.SetFieldValue(ptr_of_this_method->ValueLow, ref ___obj, ");
                     sb.Append(p.Name);
                     sb.Append(@");
                         }
@@ -275,16 +298,16 @@ namespace ILRuntime.Runtime.CLRBinding
                     break;
                 case ObjectTypes.StaticFieldReference:
                     {
-                        var t = __domain.GetType(ptr_of_this_method->Value);
-                        if(t is ILType)
+                        var ___type = __domain.GetType(ptr_of_this_method->Value);
+                        if(___type is ILType)
                         {
-                            ((ILType)t).StaticInstance[ptr_of_this_method->ValueLow] = ");
+                            ((ILType)___type).StaticInstance[ptr_of_this_method->ValueLow] = ");
                     sb.Append(p.Name);
                     sb.Append(@";
                         }
                         else
                         {
-                            ((CLRType)t).SetStaticFieldValue(ptr_of_this_method->ValueLow, ");
+                            ((CLRType)___type).SetStaticFieldValue(ptr_of_this_method->ValueLow, ");
                     sb.Append(p.Name);
                     sb.Append(@");
                         }

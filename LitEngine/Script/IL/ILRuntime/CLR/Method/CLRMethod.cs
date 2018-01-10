@@ -217,7 +217,7 @@ namespace ILRuntime.CLR.Method
             if (invocationParam == null)
                 invocationParam = new object[paramCount];
             object[] param = invocationParam;
-            for (int i = paramCount; i >= 1; i--) 
+            for (int i = paramCount; i >= 1; i--)
             {
                 var p = Minus(esp, i);
                 var obj = this.param[paramCount - i].ParameterType.CheckCLRTypes(StackObject.ToObject(p, appdomain, mStack));
@@ -325,6 +325,12 @@ namespace ILRuntime.CLR.Method
                             {
                                 ((CLRType)t).SetStaticFieldValue(p->ValueLow, val);
                             }
+                        }
+                        break;
+                    case ObjectTypes.ArrayReference:
+                        {
+                            var arr = mStack[p->Value] as Array;
+                            arr.SetValue(val, p->ValueLow);
                         }
                         break;
                 }
