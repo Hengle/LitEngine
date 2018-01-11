@@ -75,6 +75,8 @@ namespace LitEngine
             mApp.DelegateManager.RegisterMethodDelegate<int, string, string>();
             mApp.DelegateManager.RegisterMethodDelegate<string, object, object>();
             mApp.DelegateManager.RegisterMethodDelegate<object, object, object>();
+
+            
         }
         protected void RegFunctionDelegate()
         {
@@ -83,6 +85,9 @@ namespace LitEngine
             mApp.DelegateManager.RegisterFunctionDelegate<bool>();
             mApp.DelegateManager.RegisterFunctionDelegate<short>();
             mApp.DelegateManager.RegisterFunctionDelegate<string>();
+            mApp.DelegateManager.RegisterFunctionDelegate<GameObject>();
+            mApp.DelegateManager.RegisterFunctionDelegate<UnityEngine.Object>();
+            mApp.DelegateManager.RegisterFunctionDelegate<UnityEngine.Transform>();
             mApp.DelegateManager.RegisterFunctionDelegate<object>();
 
             mApp.DelegateManager.RegisterFunctionDelegate<float, float>();
