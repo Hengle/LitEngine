@@ -80,7 +80,7 @@ namespace ILRuntime.CLR.TypeSystem
 
         public IType MakeArrayType(int rank)
         {
-            return null;
+            return new SystemType(clrType.MakeArrayType());
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace ILRuntime.CLR.TypeSystem
 
         public IType MakeArrayType()
         {
-            return null;
+            return new SystemType(clrType.MakeArrayType());
         }
         public IType FindGenericArgument(string key)
         {

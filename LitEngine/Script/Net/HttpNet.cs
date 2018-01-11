@@ -20,6 +20,8 @@ namespace LitEngine
             public string AppName { get; private set; }
             public string Error { get; private set; }
             public bool IsDone { get; private set; }
+            public long ContentLength { get; private set; }
+            public long DownLoadedLength { get; private set; }
             public byte[] RecBuffer { get; private set; }
             public UpdateNeedDisObject UpdateObj { get; private set; }
             string mKey;
@@ -49,6 +51,8 @@ namespace LitEngine
                 IsDone = false;
                 RecBuffer = null;
                 Error = null;
+                ContentLength = 0;
+                DownLoadedLength = 0;
             }
             ~HttpData()
             {
@@ -110,8 +114,9 @@ namespace LitEngine
                         ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
 
                     mResponse = Request.GetResponse();
-                    long tcontexlen = mResponse.ContentLength;
+                    
                     mHttpStream = mResponse.GetResponseStream();
+                    ContentLength = mResponse.ContentLength;
 
                     tmem = new System.IO.MemoryStream();
                     int tlen = 256;
@@ -120,6 +125,7 @@ namespace LitEngine
                     tReadSize = mHttpStream.Read(tbuffer, 0, tlen);
                     while (tReadSize > 0 && mThreadRuning)
                     {
+                        DownLoadedLength += tReadSize;
                         tmem.Write(tbuffer, 0, tReadSize);
                         tReadSize = mHttpStream.Read(tbuffer, 0, tlen);
                     }
@@ -129,6 +135,11 @@ namespace LitEngine
                 catch(System.Exception _error)
                 {
                     Error = _error.ToString();
+                }
+
+                if (Error == null && DownLoadedLength != ContentLength)
+                {
+                    Error = "Http请求未能返回完整数据.Stream 被中断.";
                 }
 
                 if (tmem != null)

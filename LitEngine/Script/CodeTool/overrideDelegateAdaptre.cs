@@ -1,5 +1,4 @@
 ﻿/*
-#region 修改后的
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,16 +16,17 @@ namespace ILRuntime.Runtime.Intepreter
     class FunctionDelegateAdapter<TResult> : DelegateAdapter
     {
         Func<TResult> action;
-        protected object[] mParams;
+
         public FunctionDelegateAdapter()
         {
-
+            InitDelegate(0);
         }
 
         private FunctionDelegateAdapter(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
             : base(appdomain, instance, method)
         {
             action = InvokeILMethod;
+            InitDelegate(0);
         }
 
         public override Delegate Delegate
@@ -39,10 +39,7 @@ namespace ILRuntime.Runtime.Intepreter
 
         TResult InvokeILMethod()
         {
-            if (method.HasThis)
-                return (TResult)appdomain.Invoke(method, instance, null);
-            else
-                return (TResult)appdomain.Invoke(method, null, null);
+            return (TResult)InvokeILMethodByDomain();
         }
 
         public override IDelegateAdapter Instantiate(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
@@ -71,16 +68,16 @@ namespace ILRuntime.Runtime.Intepreter
     class FunctionDelegateAdapter<T1, TResult> : DelegateAdapter
     {
         Func<T1, TResult> action;
-        protected object[] mParams = new object[1];
         public FunctionDelegateAdapter()
         {
-
+            InitDelegate(1);
         }
 
         private FunctionDelegateAdapter(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
             : base(appdomain, instance, method)
         {
             action = InvokeILMethod;
+            InitDelegate(1);
         }
 
         public override Delegate Delegate
@@ -94,10 +91,7 @@ namespace ILRuntime.Runtime.Intepreter
         TResult InvokeILMethod(T1 p1)
         {
             mParams[0] = p1;
-            if (method.HasThis)
-                return (TResult)appdomain.Invoke(method, instance, mParams);
-            else
-                return (TResult)appdomain.Invoke(method, null, mParams);
+            return (TResult)InvokeILMethodByDomain();
         }
 
         public override IDelegateAdapter Instantiate(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
@@ -126,16 +120,16 @@ namespace ILRuntime.Runtime.Intepreter
     class FunctionDelegateAdapter<T1, T2, TResult> : DelegateAdapter
     {
         Func<T1, T2, TResult> action;
-        protected object[] mParams = new object[2];
         public FunctionDelegateAdapter()
         {
-
+            InitDelegate(2);
         }
 
         private FunctionDelegateAdapter(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
             : base(appdomain, instance, method)
         {
             action = InvokeILMethod;
+            InitDelegate(2);
         }
 
         public override Delegate Delegate
@@ -150,10 +144,7 @@ namespace ILRuntime.Runtime.Intepreter
         {
             mParams[0] = p1;
             mParams[1] = p2;
-            if (method.HasThis)
-                return (TResult)appdomain.Invoke(method, instance, mParams);
-            else
-                return (TResult)appdomain.Invoke(method, null, mParams);
+            return (TResult)InvokeILMethodByDomain();
         }
 
         public override IDelegateAdapter Instantiate(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
@@ -182,16 +173,16 @@ namespace ILRuntime.Runtime.Intepreter
     class FunctionDelegateAdapter<T1, T2, T3, TResult> : DelegateAdapter
     {
         Func<T1, T2, T3, TResult> action;
-        protected object[] mParams = new object[3];
         public FunctionDelegateAdapter()
         {
-
+            InitDelegate(3);
         }
 
         private FunctionDelegateAdapter(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
             : base(appdomain, instance, method)
         {
             action = InvokeILMethod;
+            InitDelegate(3);
         }
 
         public override Delegate Delegate
@@ -207,10 +198,7 @@ namespace ILRuntime.Runtime.Intepreter
             mParams[0] = p1;
             mParams[1] = p2;
             mParams[2] = p3;
-            if (method.HasThis)
-                return (TResult)appdomain.Invoke(method, instance, mParams);
-            else
-                return (TResult)appdomain.Invoke(method, null, mParams);
+            return (TResult)InvokeILMethodByDomain();
         }
 
         public override IDelegateAdapter Instantiate(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
@@ -238,16 +226,16 @@ namespace ILRuntime.Runtime.Intepreter
     class FunctionDelegateAdapter<T1, T2, T3, T4, TResult> : DelegateAdapter
     {
         Func<T1, T2, T3, T4, TResult> action;
-        protected object[] mParams = new object[4];
         public FunctionDelegateAdapter()
         {
-
+            InitDelegate(4);
         }
 
         private FunctionDelegateAdapter(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
             : base(appdomain, instance, method)
         {
             action = InvokeILMethod;
+            InitDelegate(4);
         }
 
         public override Delegate Delegate
@@ -264,10 +252,7 @@ namespace ILRuntime.Runtime.Intepreter
             mParams[1] = p2;
             mParams[2] = p3;
             mParams[3] = p4;
-            if (method.HasThis)
-                return (TResult)appdomain.Invoke(method, instance, mParams);
-            else
-                return (TResult)appdomain.Invoke(method, null, mParams);
+            return (TResult)InvokeILMethodByDomain();
         }
 
         public override IDelegateAdapter Instantiate(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
@@ -298,15 +283,16 @@ namespace ILRuntime.Runtime.Intepreter
     class MethodDelegateAdapter<T1> : DelegateAdapter
     {
         Action<T1> action;
-        protected object[] mParams = new object[1];
         public MethodDelegateAdapter()
         {
+            InitDelegate(1);
         }
 
         private MethodDelegateAdapter(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
             : base(appdomain, instance, method)
         {
             action = InvokeILMethod;
+            InitDelegate(1);
         }
 
         public override Delegate Delegate
@@ -320,10 +306,7 @@ namespace ILRuntime.Runtime.Intepreter
         void InvokeILMethod(T1 p1)
         {
             mParams[0] = p1;
-            if (method.HasThis)
-                appdomain.Invoke(method, instance, mParams);
-            else
-                appdomain.Invoke(method, null, mParams);
+            InvokeILMethodByDomain();
         }
 
         public override IDelegateAdapter Instantiate(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
@@ -352,16 +335,16 @@ namespace ILRuntime.Runtime.Intepreter
     class MethodDelegateAdapter<T1, T2> : DelegateAdapter
     {
         Action<T1, T2> action;
-        protected object[] mParams = new object[2];
         public MethodDelegateAdapter()
         {
-
+            InitDelegate(2);
         }
 
         private MethodDelegateAdapter(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
             : base(appdomain, instance, method)
         {
             action = InvokeILMethod;
+            InitDelegate(2);
         }
 
         public override Delegate Delegate
@@ -376,10 +359,7 @@ namespace ILRuntime.Runtime.Intepreter
         {
             mParams[0] = p1;
             mParams[1] = p2;
-            if (method.HasThis)
-                appdomain.Invoke(method, instance, mParams);
-            else
-                appdomain.Invoke(method, null, mParams);
+            InvokeILMethodByDomain();
         }
 
         public override IDelegateAdapter Instantiate(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
@@ -408,16 +388,16 @@ namespace ILRuntime.Runtime.Intepreter
     class MethodDelegateAdapter<T1, T2, T3> : DelegateAdapter
     {
         Action<T1, T2, T3> action;
-        protected object[] mParams = new object[3];
         public MethodDelegateAdapter()
         {
-
+            InitDelegate(3);
         }
 
         private MethodDelegateAdapter(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
             : base(appdomain, instance, method)
         {
             action = InvokeILMethod;
+            InitDelegate(3);
         }
 
         public override Delegate Delegate
@@ -433,10 +413,7 @@ namespace ILRuntime.Runtime.Intepreter
             mParams[0] = p1;
             mParams[1] = p2;
             mParams[2] = p3;
-            if (method.HasThis)
-                appdomain.Invoke(method, instance, mParams);
-            else
-                appdomain.Invoke(method, null, mParams);
+            InvokeILMethodByDomain();
         }
 
         public override IDelegateAdapter Instantiate(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
@@ -464,17 +441,17 @@ namespace ILRuntime.Runtime.Intepreter
 
     class MethodDelegateAdapter<T1, T2, T3, T4> : DelegateAdapter
     {
-        protected object[] mParams = new object[4];
         Action<T1, T2, T3, T4> action;
         public MethodDelegateAdapter()
         {
-
+            InitDelegate(4);
         }
 
         private MethodDelegateAdapter(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
             : base(appdomain, instance, method)
         {
             action = InvokeILMethod;
+            InitDelegate(4);
         }
 
         public override Delegate Delegate
@@ -491,10 +468,7 @@ namespace ILRuntime.Runtime.Intepreter
             mParams[1] = p2;
             mParams[2] = p3;
             mParams[3] = p4;
-            if (method.HasThis)
-                appdomain.Invoke(method, instance, mParams);
-            else
-                appdomain.Invoke(method, null, mParams);
+            InvokeILMethodByDomain();
         }
 
         public override IDelegateAdapter Instantiate(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
@@ -526,13 +500,14 @@ namespace ILRuntime.Runtime.Intepreter
 
         public MethodDelegateAdapter()
         {
-
+            InitDelegate(0);
         }
 
         protected MethodDelegateAdapter(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
             : base(appdomain, instance, method)
         {
             action = InvokeILMethod;
+            InitDelegate(0);
         }
 
         public override Delegate Delegate
@@ -545,10 +520,7 @@ namespace ILRuntime.Runtime.Intepreter
 
         void InvokeILMethod()
         {
-            if (method.HasThis)
-                appdomain.Invoke(method, instance, null);
-            else
-                appdomain.Invoke(method, null, null);
+            InvokeILMethodByDomain();
         }
 
         public override IDelegateAdapter Instantiate(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
@@ -598,10 +570,7 @@ namespace ILRuntime.Runtime.Intepreter
 
         void InvokeILMethod()
         {
-            if (method.HasThis)
-                appdomain.Invoke(method, instance, null);
-            else
-                appdomain.Invoke(method, null, null);
+            InvokeILMethodByDomain();
         }
 
         public override IDelegateAdapter Instantiate(Enviorment.AppDomain appdomain, ILTypeInstance instance, ILMethod method)
@@ -627,7 +596,7 @@ namespace ILRuntime.Runtime.Intepreter
         }
     }
     #endregion
-    abstract class DelegateAdapter : ILTypeInstance, IDelegateAdapter
+    abstract partial class DelegateAdapter : ILTypeInstance, IDelegateAdapter
     {
         protected ILMethod method;
         protected ILTypeInstance instance;
@@ -708,6 +677,12 @@ namespace ILRuntime.Runtime.Intepreter
                 if (ret->ObjectType >= ObjectTypes.Object)
                 {
                     retObj = mStack[ret->Value];
+                    if (retObj == null)
+                    {
+                        retSObj.ObjectType = ObjectTypes.Null;
+                        retSObj.Value = -1;
+                        retSObj.ValueLow = 0;
+                    }
                 }
                 intp.Free(ret);
             }
@@ -884,6 +859,4 @@ namespace ILRuntime.Runtime.Intepreter
         bool Equals(Delegate dele);
     }
 }
-
-#endregion
 */

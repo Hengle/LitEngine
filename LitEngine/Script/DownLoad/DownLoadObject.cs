@@ -197,7 +197,7 @@ namespace LitEngine
                 if (ttempfile != null)
                     ttempfile.Close();
 
-                if(DownLoadedLength == ContentLength)
+                if (DownLoadedLength == ContentLength)
                 {
                     if (File.Exists(TempFile))
                     {
@@ -207,6 +207,11 @@ namespace LitEngine
                         }
                         File.Move(TempFile, CompleteFile);
                     }
+                }
+                else
+                {
+                    if(Error == null)
+                        Error = "文件未能完成下载.Stream 被中断.";
                 }
 
                 CloseHttpClient();

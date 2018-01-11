@@ -29,6 +29,7 @@ namespace LitEngine
             if (TypeBindingDelegate != null)
                 TypeBindingDelegate(mApp);
         }
+        #region 委托设置
         protected void RegDelegate()
         {
 
@@ -37,7 +38,7 @@ namespace LitEngine
             RegDelegateConvertor();
             if (RegisterDelegate != null)
                 RegisterDelegate(mApp);
-            
+
         }
         protected void RegMethodDelegate()
         {
@@ -168,6 +169,8 @@ namespace LitEngine
             #endregion
 
         }
+        #endregion
+
         override protected void DisposeNoGcCode()
         {
             mApp.Clear();
