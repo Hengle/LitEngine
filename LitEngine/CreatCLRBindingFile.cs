@@ -40,6 +40,13 @@ public class CreatCLRBindingFile
         _types.Add(typeof(List<UnityEngine.GameObject>));
         _types.Add(typeof(List<UnityEngine.Transform>));
         _types.Add(typeof(List<ILRuntime.Runtime.Intepreter.ILTypeInstance>));
+
+        _types.Add(typeof(LinkedList<int>));
+        _types.Add(typeof(LinkedList<float>));
+        _types.Add(typeof(LinkedList<string>));
+        _types.Add(typeof(LinkedList<System.Object>));
+        _types.Add(typeof(LinkedList<ILRuntime.Runtime.Intepreter.ILTypeInstance>));
+
         _types.Add(typeof(Dictionary<string, ILRuntime.Runtime.Intepreter.ILTypeInstance>));
         _types.Add(typeof(Dictionary<int, ILRuntime.Runtime.Intepreter.ILTypeInstance>));
         _types.Add(typeof(Dictionary<ILRuntime.Runtime.Intepreter.ILTypeInstance, ILRuntime.Runtime.Intepreter.ILTypeInstance>));

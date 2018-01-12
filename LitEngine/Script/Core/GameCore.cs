@@ -118,6 +118,11 @@ namespace LitEngine
             get;
             private set;
         }
+        public CorotineManager CManager
+        {
+            get;
+            private set;
+        }
         public PlayAudioManager AudioManager
         {
             get;
@@ -156,7 +161,7 @@ namespace LitEngine
             LManager = tobj.AddComponent<LoaderManager>();
             LManager.Init(AppName, AppPersistentResDataPath, AppStreamingAssetsResDataPath, AppResourcesDataPath);
 
-
+            CManager = new CorotineManager(AppName,this);
             SManager = new ScriptManager(AppName,_scripttype);
 
             mIsInited = true;
@@ -185,7 +190,6 @@ namespace LitEngine
             NetTool.HttpNet.ClearByKey(AppName);
             NetTool.TCPNet.Instance.ClearAppDelgate(AppName);
 
-
             for (int i = mScriptInterfaces.Count - 1; i >= 0; i--)
             {
                 ScriptInterface.BehaviourInterfaceBase tscript = mScriptInterfaces[i];
@@ -204,11 +208,14 @@ namespace LitEngine
             GManager.DestroyManager();
             AudioManager.DestroyManager();
             LManager.DestroyManager();
+            CManager.Dispose();
             SManager.Dispose();
 
             GManager = null;
             LManager = null;
             SManager = null;
+            AudioManager = null;
+            CManager = null;
         }
         #endregion
         #region 方法

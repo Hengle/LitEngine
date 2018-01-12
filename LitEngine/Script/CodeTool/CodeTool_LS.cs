@@ -32,10 +32,10 @@ namespace LitEngine
         #region 委托设置
         protected void RegDelegate()
         {
-
             RegMethodDelegate();
             RegFunctionDelegate();
             RegDelegateConvertor();
+            RegBindingAdaptor();
             if (RegisterDelegate != null)
                 RegisterDelegate(mApp);
 
@@ -173,6 +173,10 @@ namespace LitEngine
             });
             #endregion
 
+        }
+        protected void RegBindingAdaptor()
+        {
+            mApp.RegisterCrossBindingAdaptor(new IEnumeratorAdaptor());
         }
         #endregion
 
