@@ -1,3 +1,5 @@
+工作原因,多app项目暂停后续开发.目前的功能可以满足基本的开发需求.
+
 # LitEngine
 LitEngine 基于ILRuntime实现的多App开发架构.
 
