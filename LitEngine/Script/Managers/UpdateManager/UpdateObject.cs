@@ -86,7 +86,7 @@ namespace LitEngine
             virtual public void RegToOwner()
             {
                 if (Owner == null || IsRegToOwner) return;
-                Owner.Add(this);
+                Owner.AddNoSetOwner(this);
                 IsRegToOwner = true;
             }
 

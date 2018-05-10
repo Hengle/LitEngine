@@ -28,6 +28,13 @@ namespace LitEngine
                 if (_obj == null || mList.Contains(_obj))
                     return;
                 _obj.Owner = this;
+                _obj.RegToOwner();
+            }
+
+            public void AddNoSetOwner(UpdateBase _obj)
+            {
+                if (_obj == null || mList.Contains(_obj))
+                    return;
                 mList.Add(_obj);
             }
 
